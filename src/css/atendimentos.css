@@ -202,13 +202,13 @@ p {
 }
 
 .indicador-icone.disponivel {
-    color: var(--azul-700);
-    background: var(--azul-100);
+    color: var(--verde);
+    background: var(--verde-claro);
 }
 
 .indicador-icone.atendimento {
-    color: var(--verde);
-    background: var(--verde-claro);
+    color: var(--azul-700);
+    background: var(--azul-100);
 }
 
 .indicador-icone.alta {
