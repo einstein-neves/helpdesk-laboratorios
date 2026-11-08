@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir chamado | Help Desk</title>
+    <link rel="stylesheet" href="css/abertura.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="index.html" aria-label="Voltar ao início">
+            <span class="brand-mark">HD</span>
+            <span>
+                <strong>Help Desk</strong>
+                <small>Laboratórios</small>
+            </span>
+        </a>
+    </header>
+
+    <main class="conteudo">
+        <section class="cabecalho-pagina">
+            <p class="rotulo">Central de suporte</p>
+            <h1>Abrir chamado</h1>
+            <p>Conte o que está acontecendo no laboratório. O prazo de atendimento é calculado pela prioridade.</p>
+        </section>
+
+        <section class="painel">
+            <form id="formChamado" novalidate>
+                <div class="linha">
+                    <div class="campo">
+                        <label for="solicitante">Seu nome</label>
+                        <input type="text" id="solicitante" placeholder="Ex.: Marina Souza">
+                    </div>
+                    <div class="campo">
+                        <label for="laboratorio">Laboratório</label>
+                        <select id="laboratorio">
+                            <option value="">Escolha...</option>
+                            <option>Laboratório 01</option>
+                            <option>Laboratório 02</option>
+                            <option>Laboratório 03</option>
+                            <option>Laboratório 04</option>
+                            <option>Laboratório 05</option>
+                            <option>Laboratório 06</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" maxlength="100" placeholder="Ex.: Projetor não liga">
+                </div>
+
+                <div class="campo">
+                    <label for="descricao">O que está acontecendo?</label>
+                    <textarea id="descricao" rows="4" placeholder="Conte o que aconteceu e o que você já tentou."></textarea>
+                </div>
+
+                <div class="linha">
+                    <div class="campo">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria">
+                            <option value="">Escolha...</option>
+                            <option>Hardware</option>
+                            <option>Software</option>
+                            <option>Rede</option>
+                            <option>Audiovisual</option>
+                            <option>Periféricos</option>
+                            <option>Acesso</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="prioridade">Prioridade</label>
+                        <select id="prioridade">
+                            <option value="P1">P1 - Urgente (prazo de 4 horas)</option>
+                            <option value="P2">P2 - Alta (prazo de 8 horas)</option>
+                            <option value="P3" selected>P3 - Normal (prazo de 24 horas)</option>
+                            <option value="P4">P4 - Baixa (prazo de 72 horas)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="botao botao-primario">Abrir chamado</button>
+                <p id="mensagem" role="status"></p>
+            </form>
+        </section>
+
+        <section class="painel">
+            <h2>Últimos chamados abertos</h2>
+            <div id="ultimosChamados"></div>
+            <p><a href="atendimentos.html">Ir para o gerenciamento de atendimentos</a></p>
+        </section>
+    </main>
+
+    <script src="js/chamados-service.js"></script>
+    <script src="js/abertura.js"></script>
+</body>
+</html>
