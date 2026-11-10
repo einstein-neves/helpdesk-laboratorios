@@ -3,25 +3,27 @@ const pool = require("./config/database");
 
 async function testar() {
     try {
-        console.log("Iniciando teste de alteração de status...");
+        console.log("Testando FECHADO para EM_ATENDIMENTO...");
 
-        const resultado = await statusService.alterarStatus(
+        await statusService.alterarStatus(
             1,
             1,
             "EM_ATENDIMENTO",
-            "Teste de alteração de status."
+            "Teste de tentativa de reabrir chamado fechado."
         );
 
-        console.log("\nStatus atualizado:");
-        console.log(resultado);
+        console.log("ATENCAO: a transicao foi aceita, mas deveria ser bloqueada.");
+
+    } catch (erro) {
+        console.log("\nResultado esperado: transicao bloqueada.");
+        console.log("Mensagem:", erro.message);
+        console.log("Código:", erro.statusCode || 500);
 
         const historico = await statusService.consultarHistorico(1);
 
-        console.log("\nHistórico registrado:");
+        console.log("\nHistorico apos a tentativa:");
         console.log(historico);
 
-    } catch (erro) {
-        console.error("Erro no teste:", erro.message);
     } finally {
         await pool.end();
     }
