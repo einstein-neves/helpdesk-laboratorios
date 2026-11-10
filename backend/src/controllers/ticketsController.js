@@ -1,10 +1,19 @@
 const statusService = require("../services/statusService");
 
+// Lista de status definidos no contrato da API.
+const statusValidos = [
+    "ABERTO",
+    "EM_ATENDIMENTO",
+    "PENDENTE",
+    "RESOLVIDO",
+    "FECHADO"
+];
+
 // Controlador responsável pela alteração de status.
 async function atualizarStatus(req, res) {
     try {
         const chamadoId = Number(req.params.id);
-        const { status, observacao } = req.body;
+        const { status, observacao } = req.body || {};
 
         // Verifica se o ID é válido.
         if (!Number.isInteger(chamadoId) || chamadoId <= 0) {
@@ -15,8 +24,8 @@ async function atualizarStatus(req, res) {
             });
         }
 
-        // Verifica se o novo status foi informado.
-        if (!status) {
+        // Verifica se o novo status foi informado corretamente.
+        if (typeof status !== "string" || !status.trim()) {
             return res.status(400).json({
                 success: false,
                 data: null,
@@ -24,7 +33,31 @@ async function atualizarStatus(req, res) {
             });
         }
 
-        // O usuário deverá vir da autenticação.
+        const statusNormalizado = status.trim();
+
+        // Verifica se o status existe no contrato da API.
+        if (!statusValidos.includes(statusNormalizado)) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: "Status informado inválido."
+            });
+        }
+
+        // Verifica se a observação é uma string.
+        if (
+            observacao !== undefined &&
+            observacao !== null &&
+            typeof observacao !== "string"
+        ) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: "A observação deve ser um texto."
+            });
+        }
+
+        // Verifica se o usuário está autenticado.
         if (!req.user || !req.user.id) {
             return res.status(401).json({
                 success: false,
@@ -36,8 +69,8 @@ async function atualizarStatus(req, res) {
         const resultado = await statusService.alterarStatus(
             chamadoId,
             req.user.id,
-            status,
-            observacao || null
+            statusNormalizado,
+            observacao?.trim() || null
         );
 
         return res.status(200).json({
@@ -89,10 +122,12 @@ async function consultarHistorico(req, res) {
         });
 
     } catch (erro) {
-        return res.status(500).json({
+        return res.status(erro.statusCode || 500).json({
             success: false,
             data: null,
-            message: "Não foi possível consultar o histórico do chamado."
+            message: erro.statusCode
+                ? erro.message
+                : "Não foi possível consultar o histórico do chamado."
         });
     }
 }
