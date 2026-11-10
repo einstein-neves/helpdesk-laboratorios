@@ -74,6 +74,27 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
     }
 }
 
+// Consulta o histórico de alterações de um chamado.
+async function consultarHistorico(chamadoId) {
+    const resultado = await pool.query(
+        `SELECT
+            h.id,
+            h.chamado_id AS "chamadoId",
+            h.usuario_id AS "usuarioId",
+            h.status_anterior AS "statusAnterior",
+            h.status_novo AS "statusNovo",
+            h.observacao,
+            h.data_alteracao AS "dataAlteracao"
+         FROM ticket_history h
+         WHERE h.chamado_id = $1
+         ORDER BY h.data_alteracao DESC`,
+        [chamadoId]
+    );
+
+    return resultado.rows;
+}
+
 module.exports = {
-    alterarStatus
+    alterarStatus,
+    consultarHistorico
 };
