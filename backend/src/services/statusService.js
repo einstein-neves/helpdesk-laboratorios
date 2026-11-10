@@ -1,0 +1,79 @@
+const pool = require("../config/database");
+
+// Define quais transições de status são permitidas.
+const transicoesPermitidas = {
+    ABERTO: ["EM_ATENDIMENTO"],
+    EM_ATENDIMENTO: ["PENDENTE", "RESOLVIDO"],
+    PENDENTE: ["EM_ATENDIMENTO", "RESOLVIDO"],
+    RESOLVIDO: ["FECHADO"],
+    FECHADO: []
+};
+
+// Função responsável por alterar o status e registrar o histórico.
+async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null) {
+    const conexao = await pool.connect();
+
+    try {
+        await conexao.query("BEGIN");
+
+        // Busca o chamado e bloqueia sua linha durante a operação.
+        const resultado = await conexao.query(
+            `SELECT id, status
+             FROM tickets
+             WHERE id = $1
+             FOR UPDATE`,
+            [chamadoId]
+        );
+
+        if (resultado.rowCount === 0) {
+            const erro = new Error("Chamado não encontrado.");
+            erro.statusCode = 404;
+            throw erro;
+        }
+
+        const chamado = resultado.rows[0];
+        const statusAnterior = chamado.status;
+
+        // Verifica se a transição é permitida.
+        if (!transicoesPermitidas[statusAnterior]?.includes(statusNovo)) {
+            const erro = new Error(
+                `Não é permitido alterar o status de ${statusAnterior} para ${statusNovo}.`
+            );
+            erro.statusCode = 409;
+            throw erro;
+        }
+
+        // Atualiza o status do chamado.
+        const atualizacao = await conexao.query(
+            `UPDATE tickets
+             SET status = $1,
+                 data_atualizacao = CURRENT_TIMESTAMP
+             WHERE id = $2
+             RETURNING id, status, data_atualizacao`,
+            [statusNovo, chamadoId]
+        );
+
+        // Registra a alteração no histórico.
+        await conexao.query(
+            `INSERT INTO ticket_history
+             (chamado_id, usuario_id, status_anterior, status_novo, observacao)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [chamadoId, usuarioId, statusAnterior, statusNovo, observacao]
+        );
+
+        await conexao.query("COMMIT");
+
+        return atualizacao.rows[0];
+
+    } catch (erro) {
+        await conexao.query("ROLLBACK");
+        throw erro;
+
+    } finally {
+        conexao.release();
+    }
+}
+
+module.exports = {
+    alterarStatus
+};
