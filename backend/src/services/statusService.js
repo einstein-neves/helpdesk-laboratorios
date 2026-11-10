@@ -52,7 +52,7 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
              SET status = $1,
                  data_atualizacao = CURRENT_TIMESTAMP
              WHERE id = $2
-             RETURNING id, status, data_atualizacao`,
+             RETURNING id, status, data_atualizacao AS "dataAtualizacao"`,
             [statusNovo, chamadoId]
         );
 
