@@ -48,7 +48,7 @@ async function atualizarStatus(req, res) {
         if (
             observacao !== undefined &&
             observacao !== null &&
-            typeof observacao !== "string"
+            (typeof observacao !== "string" || observacao.length > 2000)
         ) {
             return res.status(400).json({
                 success: false,
@@ -68,7 +68,7 @@ async function atualizarStatus(req, res) {
 
         const resultado = await statusService.alterarStatus(
             chamadoId,
-            req.user.id,
+            req.user,
             statusNormalizado,
             observacao?.trim() || null
         );
@@ -113,7 +113,7 @@ async function consultarHistorico(req, res) {
             });
         }
 
-        const resultado = await statusService.consultarHistorico(chamadoId);
+        const resultado = await statusService.consultarHistorico(chamadoId, req.user);
 
         return res.status(200).json({
             success: true,

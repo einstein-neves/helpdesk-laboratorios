@@ -31,7 +31,7 @@ describe("Testes da consulta do histórico", () => {
         });
 
         try {
-            const resultado = await consultarHistorico(1);
+            const resultado = await consultarHistorico(1, { id: 3, perfil: "ADMIN" });
 
             assert.deepEqual(resultado, historicoEsperado);
             assert.equal(consulta.mock.callCount(), 2);
@@ -54,7 +54,7 @@ describe("Testes da consulta do histórico", () => {
         });
 
         try {
-            const resultado = await consultarHistorico(1);
+            const resultado = await consultarHistorico(1, { id: 3, perfil: "ADMIN" });
 
             assert.deepEqual(resultado, []);
         } finally {
@@ -69,7 +69,7 @@ describe("Testes da consulta do histórico", () => {
 
         try {
             await assert.rejects(
-                consultarHistorico(999),
+                consultarHistorico(999, { id: 3, perfil: "ADMIN" }),
                 (erro) => {
                     assert.equal(erro.statusCode, 404);
                     assert.equal(erro.message, "Chamado não encontrado.");

@@ -1,0 +1,29 @@
+:root { font-family: system-ui, sans-serif; color: #183247; background: #f3f6fa; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+header { padding: 24px max(24px, calc((100% - 1120px) / 2)); background: white; border-bottom: 1px solid #dce5ed; }
+a { color: #175da8; }
+header a { font-weight: 750; text-decoration: none; }
+main { max-width: 1120px; margin: 48px auto; padding: 24px; }
+.conta { max-width: 480px; padding: 32px; background: white; border: 1px solid #dce5ed; border-radius: 16px; }
+h1 { font-size: 1.8rem; margin: 12px 0; }
+p { line-height: 1.6; }
+.rotulo { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; color: #42627c; }
+label { display: grid; gap: 8px; margin: 20px 0; font-weight: 600; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea { width: 100%; padding: 12px; border: 1px solid #aebfce; border-radius: 7px; background: white; }
+button, .acao { display: inline-block; padding: 12px 18px; border-radius: 7px; border: 0; background: #175da8; color: white; cursor: pointer; text-decoration: none; }
+button:disabled { opacity: .6; cursor: wait; }
+.secundario { background: #e8eff7; color: #175da8; }
+.ajuda { font-size: .85rem; color: #52697c; }
+.session-nav { padding: 14px 24px; background: #e8eff7; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font: 14px system-ui,sans-serif; }
+.session-nav span { margin-right: auto; }
+.session-nav button { padding: 7px 12px; }
+.acoes { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+td, th { text-align: left; padding: 14px; border-bottom: 1px solid #dce5ed; }
+td select { min-width: 150px; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid #e89927; outline-offset: 3px; }
+@media (max-width: 600px) { main { margin: 20px auto; } .conta { margin: 20px 14px; } }

@@ -45,7 +45,7 @@ describe("Testes da alteração de status e transações", () => {
         try {
             const resultado = await alterarStatus(
                 1,
-                3,
+                { id: 3, perfil: "ADMIN" },
                 "EM_ATENDIMENTO",
                 "Atendimento iniciado"
             );
@@ -84,7 +84,7 @@ describe("Testes da alteração de status e transações", () => {
 
         try {
             await assert.rejects(
-                alterarStatus(999, 3, "EM_ATENDIMENTO"),
+                alterarStatus(999, { id: 3, perfil: "ADMIN" }, "EM_ATENDIMENTO"),
                 erro => erro.statusCode === 404
             );
 
@@ -119,7 +119,7 @@ describe("Testes da alteração de status e transações", () => {
 
         try {
             await assert.rejects(
-                alterarStatus(1, 3, "FECHADO"),
+                alterarStatus(1, { id: 3, perfil: "ADMIN" }, "FECHADO"),
                 erro => erro.statusCode === 409
             );
 
@@ -170,7 +170,7 @@ describe("Testes da alteração de status e transações", () => {
 
         try {
             await assert.rejects(
-                alterarStatus(1, 3, "EM_ATENDIMENTO"),
+                alterarStatus(1, { id: 3, perfil: "ADMIN" }, "EM_ATENDIMENTO"),
                 /Falha simulada ao registrar histórico/
             );
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários | Help Desk</title>
+    <link rel="stylesheet" href="css/conta.css">
+</head>
+<body>
+    <header><a href="index.html">HD · Help Desk dos Laboratórios</a></header>
+    <main>
+        <p class="rotulo">Administração</p><h1>Usuários e permissões</h1>
+        <p id="mensagem" role="status" aria-live="polite">Carregando…</p>
+        <div class="table-wrap"><table id="tabelaUsuarios" hidden>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th><th>Ação</th></tr></thead>
+            <tbody id="listaUsuarios"></tbody>
+        </table></div>
+        <div class="acoes"><button id="anterior" type="button" disabled>Anterior</button><button id="proximo" type="button" disabled>Próxima página</button></div>
+    </main>
+    <script src="js/auth.bundle.js"></script><script src="js/usuarios.js"></script>
+</body>
+</html>

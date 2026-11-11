@@ -1,30 +1,14 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
-
-const ticketsRoutes = require("./routes/ticketsRoutes");
-
-const app = express();
-
-// Middlewares gerais
-app.use(cors());
-app.use(express.json());
-
-// Rota inicial para verificar se o servidor está funcionando.
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        data: null,
-        message: "API Help Desk funcionando."
-    });
+const app = require('./app');
+const pool = require('./config/database');
+const server = app.listen(process.env.PORT || 3000, () => console.log('API Help Desk iniciada.'));
+server.on('error', error => {
+ console.error('Servidor HTTP não iniciado:', error.code || error.name);
+ process.exitCode = 1;
+ pool.end();
 });
-
-// Rotas dos chamados
-app.use("/api/tickets", ticketsRoutes);
-
-// Inicialização do servidor
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
+async function shutdown() {
+ server.close(async () => { await pool.end(); process.exit(0); });
+ setTimeout(() => process.exit(1),10000).unref();
+}
+process.once('SIGTERM',shutdown);
+process.once('SIGINT',shutdown);
