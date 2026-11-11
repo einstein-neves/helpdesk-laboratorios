@@ -1,4 +1,8 @@
--- Remove os chamados e o usuário criados pelos testes (títulos começam com "[teste]").
-DELETE FROM ticket_history WHERE chamado_id IN (SELECT id FROM tickets WHERE titulo LIKE '[teste]%');
-DELETE FROM tickets WHERE titulo LIKE '[teste]%';
-DELETE FROM users WHERE email = 'teste.sla@helpdesk.local';
+-- Remove os chamados criados pelos testes automatizados e pelos seeds.
+-- (todos têm o título começando com "[teste]")
+
+-- PostgreSQL:
+DELETE FROM chamados WHERE titulo LIKE '[teste]%';
+
+-- Azure SQL (no T-SQL o "[" é especial no LIKE, por isso "[[]"):
+-- DELETE FROM chamados WHERE titulo LIKE '[[]teste]%';

@@ -1,41 +1,20 @@
--- Teste do RF6 "SLA vencido" — PostgreSQL, usando backend/database/schema.sql
--- O enunciado pede: inserir um chamado com data de abertura ANTIGA direto no banco.
---
--- Atenção: a tabela tickets ainda não tem as colunas nivel_sla / prazo_sla.
--- Por isso o prazo é calculado pela prioridade (ALTA = 8 h, MEDIA = 24 h, BAIXA = 72 h).
---
--- Resultado esperado no dashboard:
---   A (ALTA, ABERTO há 10 h)          → "SLA vencido"
---   B (MEDIA, EM_ATENDIMENTO há 30 h)  → "SLA vencido"
---   C (ALTA, RESOLVIDO há 20 h)        → NÃO aparece como vencido (finalizado)
---   D (BAIXA, ABERTO há 1 h)           → no prazo
--- O card "SLA vencido" deve aumentar em 2.
+-- Teste do RF6 "SLA vencido" — PostgreSQL
+-- Insere chamados com aberto_em ANTIGO direto no banco (pedido no enunciado).
+-- Resultado esperado na interface:
+--   #A (P1, aberto há 6 h, prazo 4 h)            → linha vermelha "SLA vencido"
+--   #B (P2, em_atendimento há 10 h, prazo 8 h)   → linha vermelha "SLA vencido"
+--   #C (P3, resolvido, prazo já passou)          → NÃO aparece como vencido
+--   #D (P4, aberto há 1 h, prazo 72 h)           → no prazo
+-- Card "SLA vencido" do dashboard deve mostrar +2.
 
--- Usuário de teste (solicitante/técnico), exigido pelas chaves estrangeiras
-INSERT INTO users (nome, email, senha, perfil)
-VALUES ('[teste] Usuário SLA', 'teste.sla@helpdesk.local', 'nao-usar-em-producao', 'TECNICO')
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO tickets (titulo, descricao, laboratorio, categoria, prioridade, status, solicitante_id, tecnico_id, data_abertura, data_atualizacao)
-SELECT v.titulo, 'Teste RF6', v.lab, 'Teste', v.prioridade, v.status, u.id,
-       CASE WHEN v.status = 'ABERTO' THEN NULL ELSE u.id END,
-       NOW() - v.aberto, NOW() - v.atualizado
-FROM (VALUES
-  ('[teste] SLA vencido A - ALTA aberto',          'Laboratório 01', 'ALTA',  'ABERTO',         INTERVAL '10 hours', INTERVAL '10 hours'),
-  ('[teste] SLA vencido B - MEDIA em atendimento', 'Laboratório 02', 'MEDIA', 'EM_ATENDIMENTO', INTERVAL '30 hours', INTERVAL '25 hours'),
-  ('[teste] SLA C - ALTA resolvido (nao vence)',   'Laboratório 03', 'ALTA',  'RESOLVIDO',      INTERVAL '20 hours', INTERVAL '18 hours'),
-  ('[teste] SLA D - BAIXA no prazo',               'Laboratório 04', 'BAIXA', 'ABERTO',         INTERVAL '1 hour',   INTERVAL '1 hour')
-) AS v(titulo, lab, prioridade, status, aberto, atualizado)
-CROSS JOIN (SELECT id FROM users WHERE email = 'teste.sla@helpdesk.local') AS u;
+INSERT INTO chamados (titulo, descricao, laboratorio, prioridade, status, solucao, aberto_em, prazo_sla, resolvido_em) VALUES
+('[teste] SLA vencido A - P1 aberto',         'Teste RF6', 'Lab 01', 'P1', 'aberto',         NULL,            NOW() - INTERVAL '6 hours',  NOW() - INTERVAL '6 hours'  + INTERVAL '4 hours',  NULL),
+('[teste] SLA vencido B - P2 em atendimento', 'Teste RF6', 'Lab 02', 'P2', 'em_atendimento', NULL,            NOW() - INTERVAL '10 hours', NOW() - INTERVAL '10 hours' + INTERVAL '8 hours',  NULL),
+('[teste] SLA C - P3 resolvido (nao vence)',  'Teste RF6', 'Lab 03', 'P3', 'resolvido',      'Teste: resolvido', NOW() - INTERVAL '30 hours', NOW() - INTERVAL '30 hours' + INTERVAL '24 hours', NOW() - INTERVAL '29 hours'),
+('[teste] SLA D - P4 no prazo',               'Teste RF6', 'Lab 04', 'P4', 'aberto',         NULL,            NOW() - INTERVAL '1 hour',   NOW() - INTERVAL '1 hour'   + INTERVAL '72 hours', NULL);
 
 -- Conferência direto no banco (deve listar só A e B):
-SELECT id, titulo, prioridade, status, data_abertura,
-       data_abertura + CASE prioridade WHEN 'ALTA' THEN INTERVAL '8 hours'
-                                       WHEN 'MEDIA' THEN INTERVAL '24 hours'
-                                       ELSE INTERVAL '72 hours' END AS prazo
-FROM tickets
-WHERE status NOT IN ('RESOLVIDO', 'FECHADO')
-  AND NOW() > data_abertura + CASE prioridade WHEN 'ALTA' THEN INTERVAL '8 hours'
-                                              WHEN 'MEDIA' THEN INTERVAL '24 hours'
-                                              ELSE INTERVAL '72 hours' END
-ORDER BY data_abertura;
+SELECT id, titulo, prioridade, status, prazo_sla
+FROM chamados
+WHERE NOW() > prazo_sla AND status NOT IN ('resolvido', 'fechado')
+ORDER BY prioridade, aberto_em;
