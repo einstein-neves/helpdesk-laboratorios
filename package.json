@@ -1,0 +1,16 @@
+{
+  "name": "helpdesk-laboratorios",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Help Desk dos Laboratórios — testes do front-end e do contrato da API",
+  "scripts": {
+    "start": "npx --yes serve publico -l 5500",
+    "test": "node --test tests/unit/regras-ui.test.js tests/unit/metricas.test.js tests/unit/mock-api.test.js",
+    "test:api": "node --test tests/api/aceitacao.test.js",
+    "test:e2e": "node tests/e2e/fluxos.e2e.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
