@@ -11,6 +11,11 @@ const transicoesPermitidas = {
     FECHADO: []
 };
 
+// Verifica se uma transição de status é permitida.
+function podeTransicionar(statusAtual, statusNovo) {
+    return transicoesPermitidas[statusAtual]?.includes(statusNovo) || false;
+}
+
 // Função responsável por alterar o status e registrar o histórico.
 
 async function alterarStatus(chamadoId, usuario, statusNovo, observacao = null) {
@@ -41,7 +46,7 @@ async function alterarStatus(chamadoId, usuario, statusNovo, observacao = null) 
         const statusAnterior = chamado.status;
 
         // Verifica se a transição é permitida.
-        if (!transicoesPermitidas[statusAnterior]?.includes(statusNovo)) {
+        if (!podeTransicionar(statusAnterior, statusNovo)) {
             const erro = new Error(
                 `Não é permitido alterar o status de ${statusAnterior} para ${statusNovo}.`
             );
@@ -126,5 +131,6 @@ async function consultarHistorico(chamadoId, usuario) {
 
 module.exports = {
     alterarStatus,
-    consultarHistorico
+    consultarHistorico,
+    podeTransicionar
 };

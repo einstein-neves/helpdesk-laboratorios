@@ -138,24 +138,64 @@ Os principais arquivos implementados são:
 - `backend/src/controllers/ticketsController.js`: realiza as validações das requisições e prepara as respostas da API.
 - `backend/src/routes/ticketsRoutes.js`: define as rotas de alteração de status e consulta do histórico.
 
+
 ## 10. Testes realizados
 
-Foram realizados testes com PostgreSQL para verificar:
+O módulo possui testes automatizados utilizando o recurso nativo `node:test` do Node.js.
 
-- Transição de ABERTO para EM_ATENDIMENTO.
-- Transição de EM_ATENDIMENTO para PENDENTE.
-- Transição de PENDENTE para EM_ATENDIMENTO.
-- Transição de EM_ATENDIMENTO para RESOLVIDO.
-- Transição de RESOLVIDO para FECHADO.
-- Bloqueio de transições inválidas.
-- Bloqueio de alterações após o fechamento.
-- Registro das alterações no histórico.
-- Consulta do histórico de um chamado.
+Os testes automatizados utilizam mocks para simular as operações do banco de dados e verificar o comportamento dos serviços e controllers sem depender de uma conexão ativa com o PostgreSQL.
 
-Também foram verificados o funcionamento do servidor Express e a resposta da rota inicial da API.
+Foram implementados 28 testes automatizados, distribuídos em quatro grupos:
+
+- **Transições de status:** verifica as transições permitidas e bloqueia as não autorizadas.
+- **Alteração de status e transações:** verifica a atualização do chamado, o registro do histórico, o COMMIT e o ROLLBACK em caso de falha.
+- **Consulta do histórico:** verifica o retorno dos registros, a ausência de histórico e chamados inexistentes.
+- **Controller de chamados:** verifica as respostas HTTP, validações de entrada, autenticação e tratamento de erros.
+
+Também foram realizados testes manuais com PostgreSQL para verificar a conexão com o banco, a alteração de status e o registro correspondente no histórico.
+
+### Executar os testes automatizados
+
+Na pasta `backend`, executar:
+
+```bash
+npm test
+```
+
+**Resultado da última execução:**
+- Total de testes: 28.
+- Aprovados: 28.
+- Reprovados: 0.
+
 
 ## 11. Pendências de integração
 
 A autenticação real e a autorização por perfil ainda dependem da integração com o módulo responsável pelo login.
 
-As permissões
+Para integrar os módulos, o middleware de autenticação deverá disponibilizar os dados do usuário autenticado por meio de `req.user`.
+
+Formato esperado:
+
+```javascript
+req.user = {
+    id: 3,
+    perfil: "TECNICO"
+};
+```
+
+### Responsabilidades da integração
+
+- O middleware deverá validar a autenticação do usuário.
+- O campo `req.user.id` deverá conter o ID do usuário autenticado.
+- O campo `req.user.perfil` deverá informar o perfil do usuário.
+- As rotas de alteração de status e consulta do histórico deverão utilizar o middleware.
+- A autorização deverá verificar se o perfil possui permissão para realizar a operação.
+
+### Respostas esperadas
+
+- HTTP 401: usuário não autenticado.
+- HTTP 403: usuário autenticado, mas sem permissão.
+- HTTP 404: chamado não encontrado.
+- HTTP 409: transição de status não permitida.
+
+**Observação:** o formato apresentado é uma proposta de integração e deverá ser alinhado com o responsável pelo módulo de autenticação.
