@@ -1,23 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help Desk - Laboratórios</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-
-    <header>
-        <h1>Help Desk dos Laboratórios</h1>
-    </header>
-
-    <main>
-        <h2>Sistema de Gerenciamento de Chamados</h2>
-        <p>Bem-vindo ao sistema de suporte técnico.</p>
-        <p><a href="atendimentos.html">Acessar gerenciamento de atendimentos</a></p>
-    </main>
-
-    <script src="js/app.js"></script>
-</body>
-</html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Desk dos Laboratórios</title><link rel="stylesheet" href="css/conta.css"></head>
+<body><header><a href="index.html">HD · Help Desk dos Laboratórios</a></header>
+<main><p class="rotulo">Central de suporte</p><h1 id="saudacao">Carregando sua conta…</h1>
+<p id="mensagem" role="status"></p><section id="acoes" hidden><p>Abra solicitações e acompanhe o atendimento dos laboratórios.</p>
+<div class="acoes"><a class="acao" href="abertura.html">Abrir chamado</a><a class="acao" href="atendimentos.html">Consultar chamados</a>
+<a class="acao" id="administracao" href="usuarios.html" hidden>Gerenciar usuários</a></div></section></main>
+<script src="js/auth.bundle.js"></script><script src="js/app.js"></script></body></html>

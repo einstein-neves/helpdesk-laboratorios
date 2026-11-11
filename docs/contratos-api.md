@@ -1,5 +1,11 @@
 # Contratos de Integração — Help Desk
 
+> Implementação atual de autenticação, rotas e matriz de acesso:
+> [Organização do backend](backend-organizacao.md).
+> O login é realizado no Supabase Auth; `POST /api/auth/login` abaixo era uma
+> proposta inicial. Senhas ficam no Auth, e `public.users` armazena o perfil
+> vinculado por `auth_user_id`. Use `POST /api/users/me` para completar o perfil.
+
 ## 1. Padrões gerais
 
 - A comunicação será feita por API REST.

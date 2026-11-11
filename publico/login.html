@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar | Help Desk</title>
+    <link rel="stylesheet" href="css/conta.css">
+</head>
+<body>
+    <header><a href="index.html">HD · Help Desk dos Laboratórios</a></header>
+    <main class="conta">
+        <p class="rotulo">Central de suporte</p>
+        <h1 id="titulo">Entre na sua conta</h1>
+        <p>Abra chamados e acompanhe o atendimento dos laboratórios.</p>
+        <form id="formLogin">
+            <label id="campoNome" hidden>Nome completo<input id="nome" autocomplete="name" maxlength="150"></label>
+            <label>E-mail<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
+            <label>Senha<input id="senha" type="password" autocomplete="current-password" maxlength="128" required></label>
+            <button id="entrar" type="submit">Entrar</button>
+        </form>
+        <p id="mensagem" role="status" aria-live="polite"></p>
+        <button id="alternar" class="secundario" type="button">Criar uma conta</button>
+        <p class="ajuda">Contas novas começam como solicitante. A equipe administra as permissões.</p>
+    </main>
+    <script src="js/auth.bundle.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

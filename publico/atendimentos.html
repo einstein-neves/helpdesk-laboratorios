@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atendimentos | Help Desk</title>
     <link rel="stylesheet" href="css/atendimentos.css">
+    <link rel="stylesheet" href="css/conta.css">
 </head>
 <body>
     <header class="topbar">
@@ -19,7 +20,7 @@
         <div class="usuario-conectado">
             <span class="avatar" id="avatarTecnico">--</span>
             <span>
-                <small>Técnico conectado</small>
+                <small>Usuário conectado</small>
                 <strong id="nomeTecnico">Carregando...</strong>
             </span>
         </div>
@@ -69,6 +70,7 @@
                 <button class="aba" type="button" role="tab" aria-selected="false" data-fila="meus">
                     Meus atendimentos
                 </button>
+                <button class="aba" type="button" role="tab" aria-selected="false" data-fila="todos">Todos os permitidos</button>
             </div>
 
             <div class="filtros">
@@ -177,6 +179,20 @@
                     <dd id="detalheTecnico"></dd>
                 </div>
             </dl>
+            <section id="controlesAtendimento" hidden>
+                <h3>Atualizar atendimento</h3>
+                <label>Novo status <select id="novoStatus"></select></label>
+                <label>Observação <textarea id="observacaoStatus" maxlength="2000" rows="2"></textarea></label>
+                <button class="botao botao-primario" id="salvarStatus" type="button">Salvar status</button>
+            </section>
+            <section id="controlesAtribuicao" hidden>
+                <label>Técnico responsável <select id="tecnicoDestino"></select></label>
+                <button class="botao botao-primario" id="atribuirTecnico" type="button">Atribuir técnico</button>
+            </section>
+            <section>
+                <h3>Histórico</h3>
+                <div id="historicoChamado" aria-live="polite"></div>
+            </section>
         </div>
 
         <div class="modal-rodape">
@@ -187,6 +203,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="js/auth.bundle.js"></script>
     <script src="js/chamados-service.js"></script>
     <script src="js/atendimentos.js"></script>
 </body>

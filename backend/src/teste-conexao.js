@@ -8,7 +8,8 @@ async function testarConexao() {
         console.log("Data e hora do banco:", resultado.rows[0].now);
     } catch (erro) {
         console.error("Erro ao conectar ao PostgreSQL:");
-        console.error(erro.message);
+        console.error(erro.code || "Falha de conexão. Verifique as variáveis e o certificado TLS.");
+        process.exitCode = 1;
     } finally {
         await pool.end();
     }

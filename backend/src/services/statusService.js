@@ -1,4 +1,6 @@
 const pool = require("../config/database");
+const { podeConsultar, podeAlterarStatus } = require("../config/permissions");
+const { fail } = require("../utils/http");
 
 // Define quais transições de status são permitidas.
 const transicoesPermitidas = {
@@ -11,7 +13,7 @@ const transicoesPermitidas = {
 
 // Função responsável por alterar o status e registrar o histórico.
 
-async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null) {
+async function alterarStatus(chamadoId, usuario, statusNovo, observacao = null) {
     const conexao = await pool.connect();
     let transacaoIniciada = false;
 
@@ -21,7 +23,7 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
 
         // Busca o chamado e bloqueia sua linha durante a operação.
         const resultado = await conexao.query(
-            `SELECT id, status
+            `SELECT id, status, tecnico_id, solicitante_id
              FROM tickets
              WHERE id = $1
              FOR UPDATE`,
@@ -35,6 +37,7 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
         }
 
         const chamado = resultado.rows[0];
+        if (!usuario || !podeAlterarStatus(usuario, chamado)) throw fail(403, "Sem permiss?o para alterar este chamado.");
         const statusAnterior = chamado.status;
 
         // Verifica se a transição é permitida.
@@ -61,7 +64,7 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
             `INSERT INTO ticket_history
              (chamado_id, usuario_id, status_anterior, status_novo, observacao)
              VALUES ($1, $2, $3, $4, $5)`,
-            [chamadoId, usuarioId, statusAnterior, statusNovo, observacao]
+            [chamadoId, usuario.id, statusAnterior, statusNovo, observacao]
         );
 
         await conexao.query("COMMIT");
@@ -87,16 +90,16 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
 
 
 // Consulta o histórico de alterações de um chamado.
-async function consultarHistorico(chamadoId) {
+async function consultarHistorico(chamadoId, usuario) {
     // Primeiro verifica se o chamado existe.
     const chamado = await pool.query(
-        `SELECT id
+        `SELECT id, status, tecnico_id, solicitante_id
          FROM tickets
          WHERE id = $1`,
         [chamadoId]
     );
 
-    if (chamado.rowCount === 0) {
+    if (chamado.rowCount === 0 || !usuario || !podeConsultar(usuario, chamado.rows[0])) {
         const erro = new Error("Chamado não encontrado.");
         erro.statusCode = 404;
         throw erro;
