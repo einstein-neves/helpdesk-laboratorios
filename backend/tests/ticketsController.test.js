@@ -1,4 +1,3 @@
-
 const { describe, it, mock } = require("node:test");
 const assert = require("node:assert/strict");
 
@@ -197,5 +196,82 @@ describe("Testes do controller de chamados", () => {
             serviceMock.mock.restore();
         }
     });
+
+    it("deve rejeitar uma atualização sem informar o status", async () => {
+        const req = {
+            params: { id: "1" },
+            body: {},
+            user: { id: 3 }
+        };
+
+        const res = criarResposta();
+
+        await atualizarStatus(req, res);
+
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.dados.success, false);
+        assert.equal(
+            res.dados.message,
+            "O novo status é obrigatório."
+        );
+    });
+
+    it("deve rejeitar uma observação que não seja texto", async () => {
+        const req = {
+            params: { id: "1" },
+            body: {
+                status: "EM_ATENDIMENTO",
+                observacao: 123
+            },
+            user: { id: 3 }
+        };
+
+        const res = criarResposta();
+
+        await atualizarStatus(req, res);
+
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.dados.success, false);
+        assert.equal(
+            res.dados.message,
+            "A observação deve ser um texto."
+        );
+    });
+
+    it("deve rejeitar um ID inválido ao consultar o histórico", async () => {
+        const req = {
+            params: { id: "abc" },
+            user: { id: 3 }
+        };
+
+        const res = criarResposta();
+
+        await consultarHistorico(req, res);
+
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.dados.success, false);
+        assert.equal(
+            res.dados.message,
+            "ID do chamado inválido."
+        );
+    });
+
+    it("deve rejeitar a consulta ao histórico sem usuário autenticado", async () => {
+        const req = {
+            params: { id: "1" }
+        };
+
+        const res = criarResposta();
+
+        await consultarHistorico(req, res);
+
+        assert.equal(res.statusCode, 401);
+        assert.equal(res.dados.success, false);
+        assert.equal(
+            res.dados.message,
+            "Usuário não autenticado."
+        );
+    });
+
 
 });
