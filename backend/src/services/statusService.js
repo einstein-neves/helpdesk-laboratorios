@@ -10,11 +10,14 @@ const transicoesPermitidas = {
 };
 
 // Função responsável por alterar o status e registrar o histórico.
+
 async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null) {
     const conexao = await pool.connect();
+    let transacaoIniciada = false;
 
     try {
         await conexao.query("BEGIN");
+        transacaoIniciada = true;
 
         // Busca o chamado e bloqueia sua linha durante a operação.
         const resultado = await conexao.query(
@@ -49,7 +52,7 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
              SET status = $1,
                  data_atualizacao = CURRENT_TIMESTAMP
              WHERE id = $2
-             RETURNING id, status, data_atualizacao`,
+             RETURNING id, status, data_atualizacao AS "dataAtualizacao"`,
             [statusNovo, chamadoId]
         );
 
@@ -62,11 +65,19 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
         );
 
         await conexao.query("COMMIT");
+        transacaoIniciada = false;
 
         return atualizacao.rows[0];
 
     } catch (erro) {
-        await conexao.query("ROLLBACK");
+        if (transacaoIniciada) {
+            try {
+                await conexao.query("ROLLBACK");
+            } catch (erroRollback) {
+                console.error("Erro ao executar ROLLBACK:", erroRollback);
+            }
+        }
+
         throw erro;
 
     } finally {
@@ -74,8 +85,24 @@ async function alterarStatus(chamadoId, usuarioId, statusNovo, observacao = null
     }
 }
 
+
 // Consulta o histórico de alterações de um chamado.
 async function consultarHistorico(chamadoId) {
+    // Primeiro verifica se o chamado existe.
+    const chamado = await pool.query(
+        `SELECT id
+         FROM tickets
+         WHERE id = $1`,
+        [chamadoId]
+    );
+
+    if (chamado.rowCount === 0) {
+        const erro = new Error("Chamado não encontrado.");
+        erro.statusCode = 404;
+        throw erro;
+    }
+
+    // Consulta o histórico de alterações do chamado.
     const resultado = await pool.query(
         `SELECT
             h.id,
