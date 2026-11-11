@@ -158,4 +158,30 @@ Também foram verificados o funcionamento do servidor Express e a resposta da ro
 
 A autenticação real e a autorização por perfil ainda dependem da integração com o módulo responsável pelo login.
 
-As permissões
+Para integrar os módulos, o middleware de autenticação deverá disponibilizar os dados do usuário autenticado por meio de `req.user`.
+
+Formato esperado:
+
+```javascript
+req.user = {
+    id: 3,
+    perfil: "TECNICO"
+};
+```
+
+### Responsabilidades da integração
+
+- O middleware deverá validar a autenticação do usuário.
+- O campo `req.user.id` deverá conter o ID do usuário autenticado.
+- O campo `req.user.perfil` deverá informar o perfil do usuário.
+- As rotas de alteração de status e consulta do histórico deverão utilizar o middleware.
+- A autorização deverá verificar se o perfil possui permissão para realizar a operação.
+
+### Respostas esperadas
+
+- HTTP 401: usuário não autenticado.
+- HTTP 403: usuário autenticado, mas sem permissão.
+- HTTP 404: chamado não encontrado.
+- HTTP 409: transição de status não permitida.
+
+**Observação:** o formato apresentado é uma proposta de integração e deverá ser alinhado com o responsável pelo módulo de autenticação.
