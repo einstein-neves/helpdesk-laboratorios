@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Desk - Laboratórios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // aplica o tema salvo antes de desenhar a página (evita "piscar")
+        try { const t = localStorage.getItem('helpdesk-tema'); if (t) document.documentElement.dataset.theme = t; } catch {}
+    </script>
+</head>
+<body>
+
+<!-- Ícones (SVG inline, sem dependências externas) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.2"/><rect x="9" y="2" width="5" height="5" rx="1.2"/><rect x="2" y="9" width="5" height="5" rx="1.2"/><rect x="9" y="9" width="5" height="5" rx="1.2"/></symbol>
+    <symbol id="i-fila" viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 16 16"><path d="M8 2.2 14.3 13H1.7L8 2.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.4" r=".9"/></symbol>
+    <symbol id="i-mais" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-lua" viewBox="0 0 16 16"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 16 16"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.8V8l2.2 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 13.5h4M8 11v2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="currentColor"/><path d="M7 9.5h10M7 14.5h6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="17" cy="14.5" r="1.6" fill="#fff"/></symbol>
+</svg>
+
+<div class="app">
+    <!-- ===================== BARRA LATERAL ===================== -->
+    <aside class="sidebar">
+        <div class="marca">
+            <svg class="marca-logo"><use href="#i-logo"/></svg>
+            <div>
+                <strong>Help Desk</strong>
+                <span>Laboratórios</span>
+            </div>
+        </div>
+
+        <button type="button" class="btn-novo" data-acao="novo">
+            <svg><use href="#i-mais"/></svg> Novo chamado <kbd>C</kbd>
+        </button>
+
+        <nav class="menu" aria-label="Navegação">
+            <a href="#dashboard" data-rota="dashboard"><svg><use href="#i-grid"/></svg><span>Dashboard</span></a>
+            <a href="#fila" data-rota="fila"><svg><use href="#i-fila"/></svg><span>Fila de atendimento</span><em id="nav-ativos"></em></a>
+            <a href="#fila/risco" data-rota="fila/risco"><svg><use href="#i-alerta"/></svg><span>SLA em risco</span><em id="nav-risco" class="em-alerta"></em></a>
+        </nav>
+
+        <div class="sidebar-rodape">
+            <button type="button" class="item-rodape" data-acao="paleta"><svg><use href="#i-busca"/></svg><span>Buscar</span><kbd>⌘K</kbd></button>
+            <button type="button" class="item-rodape" data-acao="tema"><svg><use href="#i-lua"/></svg><span>Alternar tema</span></button>
+            <div id="modo-demo" class="modo-demo" hidden>
+                <span class="ponto"></span> Modo demonstração
+                <button type="button" id="btn-restaurar">restaurar</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===================== CONTEÚDO ===================== -->
+    <div class="principal">
+        <header class="topbar">
+            <div>
+                <h1 id="titulo-pagina">Dashboard</h1>
+                <p id="subtitulo-pagina" class="sub"></p>
+            </div>
+            <div class="topbar-acoes">
+                <button type="button" class="busca-falsa" data-acao="paleta">
+                    <svg><use href="#i-busca"/></svg><span>Buscar chamado ou comando…</span><kbd>⌘K</kbd>
+                </button>
+                <button type="button" class="btn btn-primario so-mobile" data-acao="novo"><svg><use href="#i-mais"/></svg> Novo</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- ---------- DASHBOARD ---------- -->
+            <section data-secao="dashboard">
+                <div class="kpis" id="kpis"></div>
+
+                <div class="grade">
+                    <article class="painel span-2">
+                        <header class="painel-topo">
+                            <h2>Volume dos últimos 7 dias</h2>
+                            <div class="legenda">
+                                <span><i class="serie-1"></i>Abertos</span>
+                                <span><i class="serie-2"></i>Resolvidos</span>
+                            </div>
+                        </header>
+                        <div class="grafico" id="graf-volume"></div>
+                    </article>
+
+                    <article class="painel">
+                        <header class="painel-topo"><h2>Ativos por prioridade</h2></header>
+                        <div class="donut-wrap" id="graf-prioridade"></div>
+                    </article>
+
+                    <article class="painel span-2">
+                        <header class="painel-topo">
+                            <h2>Em risco de SLA</h2>
+                            <a href="#fila/risco" class="link">Ver todos</a>
+                        </header>
+                        <div id="tabela-risco"></div>
+                    </article>
+
+                    <article class="painel">
+                        <header class="painel-topo"><h2>Ativos por laboratório</h2></header>
+                        <div id="graf-labs"></div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ---------- FILA ---------- -->
+            <section data-secao="fila" hidden>
+                <div class="toolbar">
+                    <div class="segmentos" id="filtros" role="tablist" aria-label="Filtrar por status"></div>
+                    <label class="campo-busca">
+                        <svg><use href="#i-busca"/></svg>
+                        <input id="busca-fila" type="search" placeholder="Filtrar por título, laboratório ou código" aria-label="Filtrar fila">
+                    </label>
+                </div>
+
+                <div class="lista" id="lista">
+                    <div class="lista-cab">
+                        <span>Prioridade</span><span>Chamado</span><span>Laboratório</span><span>SLA</span><span>Aberto</span><span></span>
+                    </div>
+                    <div id="lista-corpo"></div>
+                </div>
+                <p class="nota-ordem">Ordenado por prioridade (P1 → P4) e, dentro da mesma prioridade, pelo mais antigo.</p>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- ===================== PAINEL DE DETALHES ===================== -->
+<div class="gaveta-fundo" id="gaveta-fundo" hidden></div>
+<aside class="gaveta" id="gaveta" aria-hidden="true" aria-labelledby="gaveta-titulo"></aside>
+
+<!-- ===================== NOVO CHAMADO ===================== -->
+<dialog id="dlg-novo" class="modal">
+    <form id="form-novo" novalidate>
+        <header class="modal-topo">
+            <h2>Novo chamado</h2>
+            <button type="button" class="btn-icone" data-fechar aria-label="Fechar"><svg><use href="#i-fechar"/></svg></button>
+        </header>
+
+        <input id="f-titulo" name="titulo" class="input-titulo" maxlength="120" placeholder="Título do problema" aria-label="Título">
+        <textarea id="f-descricao" name="descricao" rows="3" class="input-desc" placeholder="Descreva o que aconteceu, em qual máquina…" aria-label="Descrição"></textarea>
+
+        <label class="rotulo" for="f-laboratorio">Laboratório</label>
+        <input id="f-laboratorio" name="laboratorio" list="labs" placeholder="Ex.: Lab 01">
+        <datalist id="labs">
+            <option value="Lab 01"><option value="Lab 02"><option value="Lab 03"><option value="Lab 04">
+        </datalist>
+
+        <span class="rotulo">Prioridade</span>
+        <div class="escolha-prioridade" id="escolha-prioridade"></div>
+
+        <p class="previa" id="previa-prazo"></p>
+        <ul id="erros-form" class="erros" hidden></ul>
+
+        <footer class="modal-rodape">
+            <button type="button" class="btn" data-fechar>Cancelar</button>
+            <button type="submit" class="btn btn-primario">Abrir chamado</button>
+        </footer>
+    </form>
+</dialog>
+
+<!-- ===================== RESOLVER (RF5) ===================== -->
+<dialog id="dlg-resolver" class="modal modal-p">
+    <form id="form-resolver" novalidate>
+        <header class="modal-topo">
+            <h2>Resolver <span id="dlg-id"></span></h2>
+            <button type="button" class="btn-icone" data-fechar aria-label="Fechar"><svg><use href="#i-fechar"/></svg></button>
+        </header>
+        <p id="dlg-titulo" class="sub"></p>
+        <label class="rotulo" for="f-solucao">Solução aplicada <span class="obrig">obrigatória</span></label>
+        <textarea id="f-solucao" rows="4" placeholder="Ex.: Cabo HDMI substituído e projetor testado."></textarea>
+        <p id="dlg-erro" class="erro-inline" hidden></p>
+        <footer class="modal-rodape">
+            <button type="button" class="btn" data-fechar>Cancelar</button>
+            <button type="submit" class="btn btn-primario">Marcar como resolvido</button>
+        </footer>
+    </form>
+</dialog>
+
+<!-- ===================== PALETA DE COMANDOS (⌘K) ===================== -->
+<dialog id="dlg-paleta" class="paleta">
+    <div class="paleta-busca">
+        <svg><use href="#i-busca"/></svg>
+        <input id="paleta-input" placeholder="Digite um comando ou busque um chamado…" autocomplete="off" aria-label="Comando">
+        <kbd>Esc</kbd>
+    </div>
+    <ul id="paleta-lista" class="paleta-lista" role="listbox"></ul>
+</dialog>
+
+<div id="tooltip" class="tooltip" hidden></div>
+<div id="avisos" class="avisos" aria-live="polite"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
