@@ -54,6 +54,11 @@ async function alterarStatus(chamadoId, usuario, statusNovo, observacao = null) 
             throw erro;
         }
 
+        // Exige a solução aplicada para permitir a resolução do chamado.
+        if (statusNovo === "RESOLVIDO" && (typeof observacao !== "string" || !observacao.trim())) {
+            throw fail(400, "A solução aplicada é obrigatória para resolver o chamado.");
+        }
+
         // Atualiza o status do chamado.
         const atualizacao = await conexao.query(
             `UPDATE tickets
