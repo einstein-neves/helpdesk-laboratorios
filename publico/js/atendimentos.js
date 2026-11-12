@@ -8,14 +8,13 @@
     };
 
     const estado = {
+        // A tela filtra localmente apenas os chamados já autorizados pela API.
         chamados: [],
         fila: "disponiveis",
         chamadoSelecionadoId: null
     };
 
     const elementos = {
-        nomeTecnico: document.querySelector("#nomeTecnico"),
-        avatarTecnico: document.querySelector("#avatarTecnico"),
         totalDisponiveis: document.querySelector("#totalDisponiveis"),
         totalEmAtendimento: document.querySelector("#totalEmAtendimento"),
         totalAltaPrioridade: document.querySelector("#totalAltaPrioridade"),
@@ -66,15 +65,6 @@
             dateStyle: "short",
             timeStyle: "short"
         }).format(new Date(dataIso));
-    }
-
-    function obterIniciais(nome) {
-        return nome
-            .split(" ")
-            .slice(0, 2)
-            .map((parte) => parte[0])
-            .join("")
-            .toUpperCase();
     }
 
     function chamadosDaFila() {
@@ -317,54 +307,112 @@
             });
         }
         atualizarCabecalhoFila();
-        elementos.nomeTecnico.textContent = tecnico.nome;
-        elementos.avatarTecnico.textContent = obterIniciais(tecnico.nome);
         configurarEventos();
         carregarChamados();
     }
 
 
-    const transicoes = { ABERTO:['EM_ATENDIMENTO'], EM_ATENDIMENTO:['PENDENTE','RESOLVIDO'], PENDENTE:['EM_ATENDIMENTO','RESOLVIDO'], RESOLVIDO:['FECHADO'], FECHADO:[] };
+    const transicoes = {
+        ABERTO: ["EM_ATENDIMENTO"],
+        EM_ATENDIMENTO: ["PENDENTE", "RESOLVIDO"],
+        PENDENTE: ["EM_ATENDIMENTO", "RESOLVIDO"],
+        RESOLVIDO: ["FECHADO"],
+        FECHADO: []
+    };
+
+    // Os controles refletem as permissões e transições; o servidor continua sendo a autoridade final.
     async function prepararControles(chamado) {
         const user = ChamadosService.tecnicoAtual;
         const statuses = transicoes[chamado.status] || [];
-        document.querySelector('#controlesAtendimento').hidden = !(statuses.length && (user.perfil === 'ADMIN' || (user.perfil === 'TECNICO' && chamado.tecnicoId === user.id)));
-        const select = document.querySelector('#novoStatus'); select.replaceChildren();
+        document.querySelector('#controlesAtendimento').hidden = !(
+            statuses.length
+            && (user.perfil === 'ADMIN' || (user.perfil === 'TECNICO' && chamado.tecnicoId === user.id))
+        );
+
+        const select = document.querySelector('#novoStatus');
+        select.replaceChildren();
         for (const status of statuses) {
-            const option=document.createElement('option');option.value=status;option.textContent=formatarTextoEnum(status);select.append(option);
+            const option = document.createElement('option');
+            option.value = status;
+            option.textContent = formatarTextoEnum(status);
+            select.append(option);
         }
-        document.querySelector('#observacaoStatus').value='';
-        const atribuir = ['ATENDENTE','ADMIN'].includes(user.perfil) && chamado.status === 'ABERTO' && chamado.tecnicoId === null;
+
+        document.querySelector('#observacaoStatus').value = '';
+        const atribuir = ['ATENDENTE', 'ADMIN'].includes(user.perfil)
+            && chamado.status === 'ABERTO'
+            && chamado.tecnicoId === null;
         document.querySelector('#controlesAtribuicao').hidden = !atribuir;
+
         if (atribuir) {
-            const target=document.querySelector('#tecnicoDestino'); target.replaceChildren();
-            const tecnicos=await ChamadosService.listarTecnicos();
-            for(const tecnico of tecnicos){const option=document.createElement('option');option.value=tecnico.id;option.textContent=tecnico.nome;target.append(option);}
-            document.querySelector('#atribuirTecnico').disabled=!tecnicos.length;
+            const target = document.querySelector('#tecnicoDestino');
+            target.replaceChildren();
+            const tecnicos = await ChamadosService.listarTecnicos();
+            for (const tecnico of tecnicos) {
+                const option = document.createElement('option');
+                option.value = tecnico.id;
+                option.textContent = tecnico.nome;
+                target.append(option);
+            }
+            document.querySelector('#atribuirTecnico').disabled = !tecnicos.length;
         }
-        const history=document.querySelector('#historicoChamado');history.replaceChildren();
+
+        const history = document.querySelector('#historicoChamado');
+        history.replaceChildren();
         try {
-            const entries=await ChamadosService.consultarHistorico(chamado.id);
-            if(!entries.length) history.textContent='Nenhuma alteração registrada.';
-            for(const entry of entries){const item=document.createElement('p');item.textContent=formatarData(entry.dataAlteracao)+' · '+formatarTextoEnum(entry.statusAnterior)+' → '+formatarTextoEnum(entry.statusNovo)+(entry.observacao?' · '+entry.observacao:'');history.append(item);}
-        } catch(error){history.textContent=error.message;}
+            const entries = await ChamadosService.consultarHistorico(chamado.id);
+            if (!entries.length) history.textContent = 'Nenhuma alteração registrada.';
+            for (const entry of entries) {
+                const item = document.createElement('p');
+                item.textContent = formatarData(entry.dataAlteracao)
+                    + ' · ' + formatarTextoEnum(entry.statusAnterior)
+                    + ' → ' + formatarTextoEnum(entry.statusNovo)
+                    + (entry.observacao ? ' · ' + entry.observacao : '');
+                history.append(item);
+            }
+        } catch (error) {
+            history.textContent = error.message;
+        }
     }
-    document.querySelector('#salvarStatus').addEventListener('click', async event => {
-        const button=event.currentTarget;button.disabled=true;
+
+    document.querySelector('#salvarStatus').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
         try {
-            await ChamadosService.atualizarStatus(estado.chamadoSelecionadoId,document.querySelector('#novoStatus').value,document.querySelector('#observacaoStatus').value.trim());
-            await carregarChamados();await abrirDetalhes(estado.chamadoSelecionadoId);mostrarToast('Status atualizado.','sucesso');
-        } catch(error){mostrarToast(error.message,'erro');}finally{button.disabled=false;}
-    });
-    document.querySelector('#atribuirTecnico').addEventListener('click', async event => {
-        const button=event.currentTarget;button.disabled=true;
-        try {
-            await ChamadosService.atribuirChamado(estado.chamadoSelecionadoId,Number(document.querySelector('#tecnicoDestino').value));
-            await carregarChamados();await abrirDetalhes(estado.chamadoSelecionadoId);mostrarToast('Técnico atribuído.','sucesso');
-        } catch(error){mostrarToast(error.message,'erro');}finally{button.disabled=false;}
+            await ChamadosService.atualizarStatus(
+                estado.chamadoSelecionadoId,
+                document.querySelector('#novoStatus').value,
+                document.querySelector('#observacaoStatus').value.trim()
+            );
+            await carregarChamados();
+            await abrirDetalhes(estado.chamadoSelecionadoId);
+            mostrarToast('Status atualizado.', 'sucesso');
+        } catch (error) {
+            mostrarToast(error.message, 'erro');
+        } finally {
+            button.disabled = false;
+        }
     });
 
-    iniciar().catch(error => {
+    document.querySelector('#atribuirTecnico').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+            await ChamadosService.atribuirChamado(
+                estado.chamadoSelecionadoId,
+                Number(document.querySelector('#tecnicoDestino').value)
+            );
+            await carregarChamados();
+            await abrirDetalhes(estado.chamadoSelecionadoId);
+            mostrarToast('Técnico atribuído.', 'sucesso');
+        } catch (error) {
+            mostrarToast(error.message, 'erro');
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    iniciar().catch((error) => {
         elementos.estadoCarregando.hidden = true;
         mostrarToast(error.message, 'erro');
     });

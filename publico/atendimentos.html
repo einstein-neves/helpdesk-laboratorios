@@ -3,41 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atendimentos | Help Desk</title>
+    <meta name="description" content="Consulte a fila, atribua técnicos e acompanhe os chamados dos laboratórios.">
+    <title>Atendimentos | Help Desk dos Laboratórios</title>
     <link rel="stylesheet" href="css/atendimentos.css">
     <link rel="stylesheet" href="css/conta.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
-<body>
-    <header class="topbar">
-        <a class="brand" href="index.html" aria-label="Voltar ao início">
-            <span class="brand-mark">HD</span>
-            <span>
-                <strong>Help Desk</strong>
-                <small>Laboratórios</small>
-            </span>
-        </a>
+<body class="pagina-interna pagina-atendimentos" data-pagina="atendimentos">
+    <script src="js/layout.js"></script>
 
-        <div class="usuario-conectado">
-            <span class="avatar" id="avatarTecnico">--</span>
-            <span>
-                <small>Usuário conectado</small>
-                <strong id="nomeTecnico">Carregando...</strong>
-            </span>
+    <header class="hd-page-header">
+        <div class="hd-page-titulo">
+            <p class="hd-eyebrow">Chamados</p>
+            <h1>Gerenciamento de atendimentos</h1>
+            <p class="hd-page-desc">Consulte a fila, veja os detalhes e assuma chamados disponíveis.</p>
         </div>
-    </header>
-
-    <main class="conteudo">
-        <section class="cabecalho-pagina">
-            <div>
-                <p class="rotulo">Central de suporte</p>
-                <h1>Gerenciamento de atendimentos</h1>
-                <p>Consulte a fila, veja os detalhes e assuma chamados disponíveis.</p>
-            </div>
+        <div class="hd-page-actions">
             <button class="botao botao-secundario" id="botaoAtualizar" type="button">
                 Atualizar fila
             </button>
-        </section>
+        </div>
+    </header>
 
+    <main class="hd-content">
         <section class="indicadores" aria-label="Resumo dos atendimentos">
             <article class="indicador">
                 <span class="indicador-icone disponivel">D</span>

@@ -1,4 +1,5 @@
 (function () {
+ // Centraliza as chamadas HTTP para que as telas compartilhem autenticação e contrato.
  const api = (path, options) => HelpDeskAuth.request(path, options);
  const service = {
   CONFIGURACAO: Object.freeze({usarApi:true,baseApi:'/api'}), tecnicoAtual:null,

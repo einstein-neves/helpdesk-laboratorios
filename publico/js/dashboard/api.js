@@ -1,4 +1,4 @@
-// Cliente da API de chamados, seguindo docs/contratos-api.md
+// Cliente da API de chamados, seguindo docs/GUIA-PROJETO.md
 //
 //   GET   /api/tickets?status=ABERTO     → lista de chamados
 //   GET   /api/tickets/:id               → um chamado
@@ -54,7 +54,43 @@ export function criarClienteHttp(baseUrl, { fetch: fetchFn = globalThis.fetch, h
   };
 }
 
-// Escolhe entre a API real e o mock conforme config.js
+// Cliente padrão: usa a sessão do login (HelpDeskAuth) para enviar o token,
+// como as telas de abertura e atendimentos. Assim o dashboard mostra os mesmos
+// chamados do restante do sistema.
+export function criarClienteAutenticado(auth = globalThis.HelpDeskAuth) {
+  async function requisicao(caminho, opcoes) {
+    try {
+      return await auth.request(caminho, opcoes);
+    } catch (e) {
+      throw new ApiErro(0, e?.message ?? 'Não foi possível concluir a operação.');
+    }
+  }
+  const json = (metodo, corpo) => ({ method: metodo, body: JSON.stringify(corpo) });
+
+  return {
+    // A API devolve até 50 chamados por página; percorre todas.
+    async listar(status) {
+      const filtro = status ? `&status=${encodeURIComponent(status)}` : '';
+      const todos = [];
+      for (let offset = 0; ; offset += 50) {
+        const lote = await requisicao(`/tickets?offset=${offset}${filtro}`) ?? [];
+        todos.push(...lote);
+        if (lote.length < 50) return todos;
+      }
+    },
+    buscar: (id) => requisicao(`/tickets/${id}`),
+    criar: (dados) => requisicao('/tickets', json('POST', dados)),
+    mudarStatus(id, status, observacao) {
+      const corpo = observacao === undefined ? { status } : { status, observacao };
+      return requisicao(`/tickets/${id}/status`, json('PATCH', corpo));
+    },
+    historico: (id) => requisicao(`/tickets/${id}/history`),
+  };
+}
+
+// Escolhe o cliente conforme config.js: mock só quando pedido explicitamente.
 export function criarCliente(config) {
-  return config.USE_MOCK ? criarClienteMock() : criarClienteHttp(config.API_BASE_URL);
+  if (config.USE_MOCK) return criarClienteMock();
+  if (!config.API_EXTERNA && globalThis.HelpDeskAuth) return criarClienteAutenticado();
+  return criarClienteHttp(config.API_BASE_URL);
 }

@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Help Desk dos Laboratórios</title><link rel="stylesheet" href="css/conta.css"></head>
-<body><header><a href="index.html">HD · Help Desk dos Laboratórios</a></header>
-<main><p class="rotulo">Central de suporte</p><h1 id="saudacao">Carregando sua conta…</h1>
-<p id="mensagem" role="status"></p><section id="acoes" hidden><p>Abra solicitações e acompanhe o atendimento dos laboratórios.</p>
-<div class="acoes"><a class="acao" href="abertura.html">Abrir chamado</a><a class="acao" href="atendimentos.html">Consultar chamados</a>
-<a class="acao" href="dashboard.html">Acessar o dashboard</a>
-<a class="acao" id="administracao" href="usuarios.html" hidden>Gerenciar usuários</a></div></section></main>
-<script src="js/auth.bundle.js"></script><script src="js/app.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Central de suporte para abrir chamados e acompanhar o atendimento dos laboratórios.">
+    <title>Início | Help Desk dos Laboratórios</title>
+    <link rel="stylesheet" href="css/conta.css">
+    <link rel="stylesheet" href="css/layout.css">
+</head>
+<body class="pagina-interna pagina-inicio" data-pagina="inicio">
+    <script src="js/layout.js"></script>
+
+    <header class="hd-page-header">
+        <div class="hd-page-titulo">
+            <p class="hd-eyebrow">Central de suporte</p>
+            <h1 id="saudacao">Carregando sua conta…</h1>
+            <p class="hd-page-desc">Abra uma solicitação ou acompanhe o trabalho da equipe de suporte.</p>
+        </div>
+    </header>
+
+    <main class="hd-content">
+        <p id="mensagem" class="mensagem-interna" role="status" aria-live="polite"></p>
+
+        <section id="acoes" class="acoes-inicio" aria-labelledby="titulo-acoes" hidden>
+            <h2 id="titulo-acoes">Como podemos ajudar?</h2>
+            <div class="grade-atalhos">
+                <a class="atalho-interno" href="abertura.html">
+                    <span class="atalho-numero" aria-hidden="true">01</span>
+                    <span class="atalho-texto"><strong>Abrir chamado</strong><small>Registre um problema ou solicitação.</small></span>
+                    <span class="atalho-seta" aria-hidden="true">→</span>
+                </a>
+                <a class="atalho-interno" href="atendimentos.html">
+                    <span class="atalho-numero" aria-hidden="true">02</span>
+                    <span class="atalho-texto"><strong>Consultar chamados</strong><small>Acompanhe fila, responsável e andamento.</small></span>
+                    <span class="atalho-seta" aria-hidden="true">→</span>
+                </a>
+                <a class="atalho-interno" href="dashboard.html">
+                    <span class="atalho-numero" aria-hidden="true">03</span>
+                    <span class="atalho-texto"><strong>Acessar dashboard</strong><small>Veja indicadores e prazos de atendimento.</small></span>
+                    <span class="atalho-seta" aria-hidden="true">→</span>
+                </a>
+                <a class="atalho-interno" id="administracao" href="usuarios.html" hidden>
+                    <span class="atalho-numero" aria-hidden="true">04</span>
+                    <span class="atalho-texto"><strong>Gerenciar usuários</strong><small>Administre perfis e acessos da equipe.</small></span>
+                    <span class="atalho-seta" aria-hidden="true">→</span>
+                </a>
+            </div>
+        </section>
+
+        <footer class="rodape-interno">Help Desk dos Laboratórios <span>·</span> Projeto Integrador</footer>
+    </main>
+
+    <script src="js/auth.bundle.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,17 +1,14 @@
-# Help Desk dos Laborat¢rios" 
-
-
 # 🎫 Help Desk — Sistema de Gerenciamento de Chamados
 
 ## 📌 Sobre o Projeto
 
-O **Help Desk** é um sistema desenvolvido para facilitar o gerenciamento de chamados de suporte técnico, permitindo que usuários registrem solicitações, acompanhem atendimentos e consultem o histórico de suas ocorrências.
+O **Help Desk dos Laboratórios** é um sistema desenvolvido para facilitar o gerenciamento de chamados de suporte técnico, permitindo que usuários registrem solicitações, acompanhem atendimentos e consultem o histórico de suas ocorrências.
 
 O sistema busca organizar o fluxo de atendimento, melhorar a comunicação entre usuários e técnicos e proporcionar maior controle sobre as solicitações.
 
 ## 👥 Equipe e Divisão de Responsabilidades
 
-O desenvolvimento será dividido entre os integrantes da equipe, com responsabilidades específicas para cada funcionalidade.
+O desenvolvimento é dividido entre os integrantes da equipe, com responsabilidades específicas para cada funcionalidade.
 
 | Integrante | Responsabilidade |
 |---|---|
@@ -43,11 +40,32 @@ O desenvolvimento será dividido entre os integrantes da equipe, com responsabil
 6. O sistema registra as alterações no histórico.
 7. O usuário pode acompanhar o andamento da solicitação.
 
+## 🚀 Como Executar
+
+Requer Node.js 22 ou superior.
+
+```powershell
+npm install --prefix backend
+Copy-Item backend\.env.example backend\.env   # defina DEMO_PASSWORD
+npm start
+```
+
+Abra http://127.0.0.1:3000/login.html. No modo demo local, o e-mail e a senha
+aparecem no terminal; os dados ficam em memória e reiniciam junto com o
+servidor. A configuração com Supabase e PostgreSQL está descrita no
+[guia técnico](docs/GUIA-PROJETO.md).
+
+Para rodar os testes:
+
+```powershell
+npm test
+```
+
 ## 🧑‍💻 Organização do Desenvolvimento
 
-Cada integrante ficará responsável pelo desenvolvimento e pela manutenção do seu respectivo módulo.
+Cada integrante é responsável pelo desenvolvimento e pela manutenção do seu respectivo módulo.
 
-A integração será realizada de forma conjunta, seguindo a arquitetura definida pela liderança do projeto.
+A integração é realizada de forma conjunta, seguindo a arquitetura definida pela liderança do projeto.
 
 ### 📌 Padrões de colaboração
 
@@ -60,11 +78,29 @@ A integração será realizada de forma conjunta, seguindo a arquitetura definid
 
 ## 🛠️ Tecnologias
 
-As tecnologias utilizadas serão documentadas conforme forem definidas e implementadas pela equipe.
+| Camada | Tecnologias |
+|---|---|
+| Backend | Node.js 22, Express 5 |
+| Banco de dados | PostgreSQL (Supabase), driver `pg` |
+| Autenticação | Supabase Auth; conta demo local para desenvolvimento |
+| Frontend | HTML, CSS e JavaScript puros, servidos pelo Express |
+| Testes | Test runner nativo do Node (`node --test`) e jsdom |
+| Ferramentas | esbuild, nodemon, Git e GitHub |
 
 ## 📂 Estrutura do Projeto
 
-A estrutura de pastas será organizada conforme a arquitetura e os módulos desenvolvidos pela equipe.
+```text
+backend/
+  client/       Fonte do cliente de autenticação do navegador
+  database/     Schema, migrações e scripts SQL de apoio
+  src/          API Express: config, rotas, middlewares, controllers, services
+  test/         Testes de API, interface, permissões, status e modo demo
+publico/        Telas (login, início, abertura, atendimentos, usuários, dashboard)
+docs/           Guia técnico do projeto
+```
+
+Arquitetura, rotas, regras de chamados e permissões estão detalhadas em
+[docs/GUIA-PROJETO.md](docs/GUIA-PROJETO.md).
 
 ## 🎯 Objetivo
 

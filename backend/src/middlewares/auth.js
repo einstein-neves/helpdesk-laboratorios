@@ -1,6 +1,7 @@
 const pool = require('../config/database');
 const { getSupabaseConfig } = require('../config/supabase');
 const { fail } = require('../utils/http');
+// Valida o JWT no Supabase e associa sua identidade ao perfil local ativo.
 async function autenticar(req, res, next) {
  const match = /^Bearer ([^\s]+)$/i.exec(req.get('authorization') || '');
  if (!match) throw fail(401, 'Informe um access token do Supabase.');
@@ -25,6 +26,7 @@ function exigirUsuario(req, res, next) {
  if (!req.user) throw fail(403, 'Complete seu cadastro em POST /api/users/me.');
  next();
 }
+// Mantém autorização por perfil concentrada nas rotas que exigem privilégios.
 function permitir(...perfis) {
  return (req, res, next) => {
   if (!req.user || !perfis.includes(req.user.perfil)) throw fail(403, 'Sem permissao para esta operacao.');

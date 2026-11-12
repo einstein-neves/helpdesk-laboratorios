@@ -1,0 +1,266 @@
+/* =========================================================================
+   Layout compartilhado das telas autenticadas.
+   Carregue este arquivo por último em cada página: ele define o tema único
+   do sistema, o menu lateral (montado por js/layout.js), o cabeçalho de
+   página e o espaçamento do conteúdo. Não há alternância de tema.
+   ========================================================================= */
+
+:root {
+    color-scheme: light;
+    --hd-azul-900: #12305a;
+    --hd-azul-700: #1e4f91;
+    --hd-azul-500: #2875d2;
+    --hd-azul-100: #e9f2ff;
+    --hd-texto: #18212f;
+    --hd-texto-2: #4b5565;
+    --hd-borda: #d7dde6;
+    --hd-fundo: #f4f6f9;
+    --hd-branco: #ffffff;
+    --hd-foco: #e89927;
+    --hd-menu-texto: #c9d7ea;
+    --hd-menu-hover: rgb(255 255 255 / 8%);
+    --hd-menu-ativo: rgb(255 255 255 / 16%);
+    --hd-menu-borda: rgb(255 255 255 / 14%);
+    --hd-menu-largura: 248px;
+    --hd-gutter: 32px;
+    --hd-largura-conteudo: 1200px;
+    --hd-fonte: Inter, "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+html { height: auto; }
+
+body.pagina-interna {
+    min-width: 320px;
+    min-height: 100vh;
+    height: auto;
+    margin: 0;
+    padding: 0 0 0 var(--hd-menu-largura);
+    background: var(--hd-fundo);
+    color: var(--hd-texto);
+    font-family: var(--hd-fonte);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- menu lateral ---------- */
+.hd-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 15;
+    width: var(--hd-menu-largura);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px 12px 16px;
+    overflow-y: auto;
+    background: var(--hd-azul-900);
+    color: var(--hd-menu-texto);
+    font-family: var(--hd-fonte);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.hd-sidebar .hd-marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px;
+    color: var(--hd-branco);
+    text-decoration: none;
+}
+
+.hd-sidebar .hd-marca-simbolo {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 12px;
+    background: var(--hd-branco);
+    color: var(--hd-azul-900);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -.05em;
+}
+
+.hd-sidebar .hd-marca-texto { display: grid; gap: 2px; min-width: 0; }
+.hd-sidebar .hd-marca-texto strong { font-size: 14px; font-weight: 700; color: var(--hd-branco); }
+.hd-sidebar .hd-marca-texto small { font-size: 11px; color: var(--hd-menu-texto); }
+
+.hd-sidebar .hd-nav { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; }
+
+.hd-sidebar .hd-nav-titulo {
+    margin: 0;
+    padding: 0 12px 6px;
+    color: var(--hd-menu-texto);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    opacity: .75;
+}
+
+.hd-sidebar .hd-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--hd-menu-texto);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.hd-sidebar .hd-nav a:hover { background: var(--hd-menu-hover); color: var(--hd-branco); }
+.hd-sidebar .hd-nav a[aria-current="page"] { background: var(--hd-menu-ativo); color: var(--hd-branco); font-weight: 600; }
+.hd-sidebar .hd-nav svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.hd-sidebar .hd-usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding: 14px 8px 0;
+    border-top: 1px solid var(--hd-menu-borda);
+}
+
+.hd-sidebar .hd-avatar {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 50%;
+    background: var(--hd-azul-500);
+    color: var(--hd-branco);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hd-sidebar .hd-usuario-texto { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.hd-sidebar .hd-usuario-texto strong { overflow: hidden; color: var(--hd-branco); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.hd-sidebar .hd-usuario-texto small { color: var(--hd-menu-texto); font-size: 11px; }
+
+.hd-sidebar .hd-sair,
+.hd-sidebar .hd-sair:hover:not(:disabled) {
+    width: auto;
+    min-height: 32px;
+    flex: none;
+    margin: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--hd-menu-borda);
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--hd-branco);
+    font: 600 12px/1 var(--hd-fonte);
+    cursor: pointer;
+    transform: none;
+}
+.hd-sidebar .hd-sair:hover:not(:disabled) { background: var(--hd-menu-hover); }
+.hd-sidebar .hd-sair:disabled { opacity: .6; cursor: wait; }
+.hd-sidebar :focus-visible { outline: 2px solid var(--hd-foco); outline-offset: 2px; }
+
+/* ---------- cabeçalho de página ---------- */
+.hd-page-header {
+    position: static;
+    width: 100%;
+    max-width: var(--hd-largura-conteudo);
+    min-height: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 24px;
+    margin: 0 auto;
+    padding: 32px var(--hd-gutter) 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--hd-texto);
+}
+
+.hd-page-header .hd-page-titulo { min-width: 0; flex: 1 1 320px; }
+
+.hd-page-header .hd-eyebrow {
+    margin: 0 0 8px;
+    color: var(--hd-azul-700);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+}
+
+.hd-page-header h1 {
+    margin: 0;
+    color: var(--hd-azul-900);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+}
+
+.hd-page-header .hd-page-desc {
+    margin: 8px 0 0;
+    color: var(--hd-texto-2);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.hd-page-header .hd-page-desc:empty { display: none; }
+
+.hd-page-header .hd-page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hd-page-header .hd-page-actions > * { min-height: 40px; margin: 0; }
+
+/* ---------- conteúdo ---------- */
+main.hd-content {
+    width: 100%;
+    max-width: var(--hd-largura-conteudo);
+    margin: 0 auto;
+    padding: 24px var(--hd-gutter) 56px;
+}
+main.hd-content > :first-child { margin-top: 0; }
+
+[hidden] { display: none !important; }
+
+/* ---------- responsivo: o menu vira barra superior ---------- */
+@media (max-width: 860px) {
+    :root { --hd-gutter: 16px; }
+    body.pagina-interna { padding-left: 0; }
+
+    .hd-sidebar {
+        position: sticky;
+        inset: 0 auto auto 0;
+        width: 100%;
+        flex-flow: row wrap;
+        align-items: center;
+        gap: 8px 12px;
+        padding: 10px 16px;
+        overflow: visible;
+    }
+    .hd-sidebar .hd-marca { padding: 0; }
+    .hd-sidebar .hd-marca-simbolo { width: 36px; height: 36px; }
+    .hd-sidebar .hd-usuario { margin: 0 0 0 auto; padding: 0; border: 0; }
+    .hd-sidebar .hd-usuario-texto { display: none; }
+    .hd-sidebar .hd-nav { order: 3; flex: 1 0 100%; flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+    .hd-sidebar .hd-nav-titulo { display: none; }
+    .hd-sidebar .hd-nav a { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+
+    .hd-page-header { padding-top: 24px; }
+    .hd-page-header h1 { font-size: 22px; }
+    main.hd-content { padding: 20px var(--hd-gutter) 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pagina-interna *,
+    .pagina-interna *::before,
+    .pagina-interna *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

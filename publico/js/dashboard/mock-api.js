@@ -1,6 +1,6 @@
-// API FALSA (mock) do dashboard, para funcionar enquanto o backend não está pronto.
-// - Usa o MESMO armazenamento das telas de abertura e atendimentos
-//   (localStorage "helpdesk_chamados"), então as três telas mostram os mesmos dados.
+// API FALSA (mock) do dashboard, usada só com dashboard.html?mock=1 e nos testes.
+// - Guarda dados de exemplo no navegador (localStorage "helpdesk_chamados");
+//   eles são separados dos chamados reais, que vêm da API.
 // - Segue o contrato da equipe e devolve os mesmos códigos de erro do backend,
 //   por isso a suíte de testes de contrato roda contra ela e contra a API real.
 
@@ -9,12 +9,12 @@ import {
   PRIORIDADE_DO_NIVEL, STATUS, TRANSICOES, calcularPrazo, ordenarFila, validarNovoChamado,
 } from './regras-ui.js';
 
-const CHAVE_CHAMADOS = 'helpdesk_chamados';      // compartilhada com publico/js/chamados-service.js
+const CHAVE_CHAMADOS = 'helpdesk_chamados';
 const CHAVE_HISTORICO = 'helpdesk_historico';
 const HORA = 60 * 60 * 1000;
-const USUARIO_ATUAL = 6; // simulado até o módulo de login ficar pronto
+const USUARIO_ATUAL = 6; // usuário simulado do mock
 
-// Mesmos técnicos simulados em publico/js/chamados-service.js
+// Técnicos simulados
 const TECNICOS = { 4: 'Hilccer', 5: 'Matheus', 6: 'Guilherme' };
 
 function armazenamentoPadrao() {

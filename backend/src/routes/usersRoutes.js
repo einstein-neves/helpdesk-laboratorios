@@ -3,7 +3,7 @@ const pool = require('../config/database');
 const { exigirUsuario, permitir } = require('../middlewares/auth');
 const { PERFIS } = require('../config/permissions');
 const { ok, fail, id, text } = require('../utils/http');
-// Identidade verificada pelo Supabase; perfil nunca vem do corpo deste cadastro.
+// Cria o perfil local a partir da identidade já verificada; perfil não vem do cliente.
 router.post('/me', async (req, res) => {
  const nome = text(req.body?.nome, 'Nome', 150);
  if (req.user) return ok(res, req.user);
@@ -13,6 +13,7 @@ router.post('/me', async (req, res) => {
  return ok(res, result.rows[0], 201);
 });
 router.use(exigirUsuario);
+// Endpoints abaixo só operam sobre uma conta local autenticada.
 router.get('/technicians', permitir('ATENDENTE','ADMIN'), async (req,res) => {
  const result = await pool.query("SELECT id,nome FROM users WHERE perfil='TECNICO' AND ativo=TRUE ORDER BY nome,id");
  ok(res,result.rows);

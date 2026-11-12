@@ -1,6 +1,7 @@
 const pool = require('../config/database');
 const { ok, fail, id, text } = require('../utils/http');
 const { podeConsultar } = require('../config/permissions');
+// Colunas e junções comuns mantêm o formato da resposta consistente nas consultas.
 const fields = `t.id,t.titulo,t.descricao,t.laboratorio,t.categoria,t.prioridade,t.status,
  t.solicitante_id AS "solicitanteId",s.nome AS "solicitanteNome",
  t.tecnico_id AS "tecnicoId",u.nome AS "tecnicoNome",
@@ -10,11 +11,25 @@ const from = ' FROM tickets t JOIN users s ON s.id=t.solicitante_id LEFT JOIN us
 async function listar(req,res) {
  const offset = req.query.offset === undefined ? 0 : Number(req.query.offset);
  if (!Number.isSafeInteger(offset) || offset<0) throw fail(400,'Offset invalido.');
- let filter = 'TRUE';
- if (req.user.perfil === 'SOLICITANTE') filter='t.solicitante_id=$1';
- else if (req.user.perfil === 'TECNICO') filter="(t.solicitante_id=$1 OR t.tecnico_id=$1 OR (t.status='ABERTO' AND t.tecnico_id IS NULL))";
- const params = filter==='TRUE' ? [offset] : [req.user.id,offset];
- const result=await pool.query('SELECT '+fields+from+'WHERE '+filter+' ORDER BY t.data_abertura DESC,t.id DESC LIMIT 50 OFFSET $'+params.length,params);
+ const filters = [];
+ const params = [];
+ // A consulta já filtra por perfil para não depender de filtros enviados pelo navegador.
+ if (req.user.perfil === 'SOLICITANTE') {
+  params.push(req.user.id);
+  filters.push('t.solicitante_id=$'+params.length);
+ } else if (req.user.perfil === 'TECNICO') {
+  params.push(req.user.id);
+  filters.push("(t.solicitante_id=$"+params.length+" OR t.tecnico_id=$"+params.length+" OR (t.status='ABERTO' AND t.tecnico_id IS NULL))");
+ }
+ if (req.query.status !== undefined) {
+  const statuses = ['ABERTO','EM_ATENDIMENTO','PENDENTE','RESOLVIDO','FECHADO'];
+  if (!statuses.includes(req.query.status)) throw fail(400,'Status invalido.');
+  params.push(req.query.status);
+  filters.push('t.status=$'+params.length);
+ }
+ params.push(offset);
+ const where = filters.length ? filters.join(' AND ') : 'TRUE';
+ const result=await pool.query('SELECT '+fields+from+'WHERE '+where+' ORDER BY t.data_abertura DESC,t.id DESC LIMIT 50 OFFSET $'+params.length,params);
  ok(res,result.rows);
 }
 async function buscar(req,res) {
@@ -24,6 +39,7 @@ async function buscar(req,res) {
  ok(res,(await pool.query('SELECT '+fields+from+'WHERE t.id=$1',[ticketId])).rows[0]);
 }
 async function criar(req,res) {
+ // Dados de solicitante, responsável e prazo são definidos pelo backend autenticado.
  const body=req.body || {};
  const titulo=text(body.titulo,'Titulo',200), descricao=text(body.descricao,'Descricao',10000), laboratorio=text(body.laboratorio,'Laboratorio',150);
  const categoria=body.categoria == null ? null : text(body.categoria,'Categoria',100);
@@ -39,6 +55,7 @@ async function atribuir(req,res) {
  const ticketId=id(req.params.id);
  const tecnicoId=req.user.perfil==='TECNICO' ? req.user.id : id(req.body?.tecnicoId);
  if (req.user.perfil==='TECNICO' && req.body?.tecnicoId !== undefined && req.body.tecnicoId !== req.user.id) throw fail(403,'Tecnico so pode assumir para si.');
+ // O bloqueio transacional impede que dois técnicos assumam o mesmo chamado.
  const client=await pool.connect();
  try {
   await client.query('BEGIN');

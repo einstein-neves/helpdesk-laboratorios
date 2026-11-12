@@ -1,5 +1,5 @@
 // Regras usadas pela INTERFACE do dashboard (selos, botões, métricas).
-// Segue o contrato da equipe (docs/contratos-api.md):
+// Segue o contrato da equipe (docs/GUIA-PROJETO.md):
 //   status ABERTO | EM_ATENDIMENTO | PENDENTE | RESOLVIDO | FECHADO
 //   prioridade ALTA | MEDIA | BAIXA  +  nivelSla P1..P4 e prazoSla (tela de abertura)
 // Quem garante as regras de verdade é o backend; aqui elas servem para exibir.

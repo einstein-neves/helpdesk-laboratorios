@@ -3,20 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuários | Help Desk</title>
+    <meta name="description" content="Administre usuários, perfis e permissões do Help Desk dos Laboratórios.">
+    <title>Usuários | Help Desk dos Laboratórios</title>
     <link rel="stylesheet" href="css/conta.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
-<body>
-    <header><a href="index.html">HD · Help Desk dos Laboratórios</a></header>
-    <main>
-        <p class="rotulo">Administração</p><h1>Usuários e permissões</h1>
-        <p id="mensagem" role="status" aria-live="polite">Carregando…</p>
-        <div class="table-wrap"><table id="tabelaUsuarios" hidden>
-            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th><th>Ação</th></tr></thead>
-            <tbody id="listaUsuarios"></tbody>
-        </table></div>
-        <div class="acoes"><button id="anterior" type="button" disabled>Anterior</button><button id="proximo" type="button" disabled>Próxima página</button></div>
+<body class="pagina-interna pagina-usuarios" data-pagina="usuarios">
+    <script src="js/layout.js"></script>
+
+    <header class="hd-page-header">
+        <div class="hd-page-titulo">
+            <p class="hd-eyebrow">Administração</p>
+            <h1 id="titulo-usuarios">Usuários e permissões</h1>
+            <p class="hd-page-desc">Gerencie os perfis e o acesso de cada integrante à plataforma.</p>
+        </div>
+    </header>
+
+    <main class="hd-content">
+        <p id="mensagem" class="mensagem-interna" role="status" aria-live="polite">Carregando usuários…</p>
+
+        <section class="painel-usuarios" aria-label="Lista de usuários">
+            <div class="tabela-intro">
+                <div><strong>Equipe cadastrada</strong><span>As alterações são aplicadas ao salvar cada linha.</span></div>
+            </div>
+            <div class="table-wrap">
+                <table id="tabelaUsuarios" hidden>
+                    <thead>
+                        <tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th><th>Ação</th></tr>
+                    </thead>
+                    <tbody id="listaUsuarios"></tbody>
+                </table>
+            </div>
+            <nav class="paginacao-usuarios" aria-label="Paginação de usuários">
+                <button id="anterior" type="button" disabled>Anterior</button>
+                <button id="proximo" type="button" disabled>Próxima página</button>
+            </nav>
+        </section>
     </main>
-    <script src="js/auth.bundle.js"></script><script src="js/usuarios.js"></script>
+
+    <script src="js/auth.bundle.js"></script>
+    <script src="js/usuarios.js"></script>
 </body>
 </html>

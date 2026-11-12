@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abrir chamado | Help Desk</title>
+    <meta name="description" content="Abra um chamado de suporte para os laboratórios e acompanhe os prazos de atendimento.">
+    <title>Abrir chamado | Help Desk dos Laboratórios</title>
     <link rel="stylesheet" href="css/abertura.css">
     <link rel="stylesheet" href="css/conta.css">
+    <link rel="stylesheet" href="css/layout.css">
 </head>
-<body>
-    <header class="topbar">
-        <a class="brand" href="index.html" aria-label="Voltar ao início">
-            <span class="brand-mark">HD</span>
-            <span>
-                <strong>Help Desk</strong>
-                <small>Laboratórios</small>
-            </span>
-        </a>
+<body class="pagina-interna pagina-abertura" data-pagina="abertura">
+    <script src="js/layout.js"></script>
+
+    <header class="hd-page-header">
+        <div class="hd-page-titulo">
+            <p class="hd-eyebrow">Chamados</p>
+            <h1>Abrir chamado</h1>
+            <p class="hd-page-desc">Conte o que está acontecendo no laboratório. O prazo de atendimento é calculado pela prioridade.</p>
+        </div>
     </header>
 
-    <main class="conteudo">
-        <section class="cabecalho-pagina">
-            <p class="rotulo">Central de suporte</p>
-            <h1>Abrir chamado</h1>
-            <p>Conte o que está acontecendo no laboratório. O prazo de atendimento é calculado pela prioridade.</p>
-        </section>
-
+    <main class="hd-content">
         <section class="painel">
             <form id="formChamado" novalidate>
                 <div class="linha">

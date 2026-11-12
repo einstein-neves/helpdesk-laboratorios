@@ -1,5 +1,5 @@
 // Dashboard do Help Desk: indicadores, acompanhamento dos chamados, painel de
-// detalhes com histórico, mudança de status, paleta de comandos (⌘K) e atalhos.
+// detalhes com histórico, mudança de status, paleta de comandos (Ctrl+K) e atalhos.
 // Abrir chamado e assumir chamado ficam nas telas da equipe (abertura.html e
 // atendimentos.html) — este módulo só leva o usuário até elas.
 import { CONFIG } from './config.js';
@@ -79,7 +79,7 @@ function icoStatus(s) {
   if (s === 'ABERTO') return `${base}${anel}</svg>`;
   if (s === 'EM_ATENDIMENTO') return `${base}${anel}<path d="M7 3.5A3.5 3.5 0 0 1 7 10.5Z"/></svg>`;
   if (s === 'PENDENTE') return `${base}${anel}<rect x="4.9" y="4.6" width="1.4" height="4.8" rx=".5"/><rect x="7.7" y="4.6" width="1.4" height="4.8" rx=".5"/></svg>`;
-  return `${base}<circle cx="7" cy="7" r="6.3"/><path d="m4.4 7.2 1.8 1.8 3.4-3.6" fill="none" style="stroke:var(--superficie)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `${base}<circle cx="7" cy="7" r="6.3"/><path class="checkmark" d="m4.4 7.2 1.8 1.8 3.4-3.6" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
 const pilulaStatus = (s) => `<span class="pilula">${icoStatus(s)}${STATUS_LABEL[s] ?? esc(s)}</span>`;
@@ -95,14 +95,9 @@ function seloSla(c) {
 
 // ---------- tooltip compartilhado pelos gráficos ----------
 const tooltip = $('#tooltip');
-function mostrarTooltip(ev, html) {
+function mostrarTooltip(_ev, html) {
   tooltip.innerHTML = html;
   tooltip.hidden = false;
-  const r = tooltip.getBoundingClientRect();
-  let x = ev.clientX + 14;
-  if (x + r.width > window.innerWidth - 8) x = ev.clientX - r.width - 14;
-  tooltip.style.left = `${Math.max(8, x)}px`;
-  tooltip.style.top = `${Math.max(8, ev.clientY - r.height - 10)}px`;
 }
 const esconderTooltip = () => { tooltip.hidden = true; };
 
@@ -166,7 +161,7 @@ function renderDashboard() {
   const pct = cumprimentoSla(lista);
   const medio = tempoMedioResolucao(lista);
   const nFinal = r.porStatus.RESOLVIDO + r.porStatus.FECHADO;
-  const corPct = pct === null ? 'var(--texto-3)' : pct >= 90 ? 'var(--ok)' : pct >= 70 ? 'var(--atencao)' : 'var(--vencido)';
+  const classePct = pct === null ? 'medidor-preenchimento' : pct >= 90 ? 'medidor-ok' : pct >= 70 ? 'medidor-atencao' : 'medidor-vencido';
 
   $('#kpis').innerHTML = `
     <div class="kpi">
@@ -182,7 +177,12 @@ function renderDashboard() {
     <div class="kpi">
       <span class="kpi-rotulo"><svg><use href="#i-relogio"/></svg>Cumprimento do SLA</span>
       <span class="kpi-valor">${pct === null ? '—' : `${pct}<small>%</small>`}</span>
-      <div class="medidor" role="img" aria-label="${pct ?? 0}% no prazo"><span style="width:${pct ?? 0}%;background:${corPct}"></span></div>
+      <div class="medidor" role="img" aria-label="${pct ?? 0}% no prazo">
+        <svg viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
+          <rect class="medidor-trilho" width="100" height="4" rx="2"/>
+          <rect class="medidor-preenchimento ${classePct}" width="${pct ?? 0}" height="4" rx="2"/>
+        </svg>
+      </div>
       <span class="kpi-detalhe">finalizados dentro do prazo</span>
     </div>
     <div class="kpi">
@@ -256,7 +256,7 @@ function graficoNivel(porNivel, total) {
     const v = porNivel[n];
     if (!v) continue;
     const len = (v / total) * C;
-    fatias += `<circle class="fatia" data-n="${n}" cx="70" cy="70" r="${R}" style="stroke:var(--${n.toLowerCase()})"
+    fatias += `<circle class="fatia fatia-${n}" data-n="${n}" cx="70" cy="70" r="${R}"
       stroke-dasharray="${Math.max(0, len - GAP)} ${C}" stroke-dashoffset="${-offset}" transform="rotate(-90 70 70)"/>`;
     offset += len;
   }
@@ -306,12 +306,18 @@ function tabelaRisco(lista) {
 
 // ---------- barras: ativos por laboratório ----------
 function barrasLabs(itens) {
-  if (!itens.length) { $('#graf-labs').innerHTML = '<p class="vazio">Sem chamados ativos.</p>'; return; }
+  if (!itens.length) {
+    $('#graf-labs').innerHTML = '<p class="vazio">Sem chamados ativos.</p>';
+    return;
+  }
   const max = Math.max(...itens.map((i) => i.total));
   $('#graf-labs').innerHTML = itens.map((i) => `
     <div class="hbarra">
       <span title="${esc(i.laboratorio)}">${esc(i.laboratorio.replace('Laboratório', 'Lab'))}</span>
-      <span class="hbarra-trilho"><span style="width:${(i.total / max) * 100}%"></span></span>
+      <svg class="hbarra-trilho" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">
+        <rect width="100" height="8" rx="4"/>
+        <rect width="${(i.total / max) * 100}" height="8" rx="4"/>
+      </svg>
       <b>${i.total}</b>
     </div>`).join('');
 }
@@ -401,9 +407,15 @@ async function carregarHistorico(id) {
   renderGaveta();
   try {
     const h = await api.historico(id);
-    if (estado.gavetaId === Number(id)) { estado.historico = h ?? []; renderGaveta(); }
+    if (estado.gavetaId === Number(id)) {
+      estado.historico = h ?? [];
+      renderGaveta();
+    }
   } catch (e) {
-    if (estado.gavetaId === Number(id)) { estado.historico = { erro: mensagemErro(e) }; renderGaveta(); }
+    if (estado.gavetaId === Number(id)) {
+      estado.historico = { erro: mensagemErro(e) };
+      renderGaveta();
+    }
   }
 }
 
@@ -449,7 +461,10 @@ function solucaoDoHistorico() {
 
 function renderGaveta() {
   const c = acharChamado(estado.gavetaId);
-  if (!c) { fecharGaveta(); return; }
+  if (!c) {
+    fecharGaveta();
+    return;
+  }
   const n = nivel(c);
   const e = slaEstado(c);
   const ini = new Date(c.dataAbertura).getTime();
@@ -473,7 +488,10 @@ function renderGaveta() {
 
       <div class="bloco-sla">
         <div class="bloco-sla-topo"><strong>${textoSla}</strong>${seloSla(c)}</div>
-        <div class="progresso"><span class="prog-${e}" style="width:${pct}%"></span></div>
+        <svg class="progresso" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true">
+          <rect class="progresso-trilho" width="100" height="6" rx="3"/>
+          <rect class="prog-${e}" width="${pct}" height="6" rx="3"/>
+        </svg>
         <span class="sub">Prazo ${formatarDataHora(prazoIso(c))} · ${n} = ${SLA_HORAS[n]} h</span>
       </div>
 
@@ -537,7 +555,6 @@ const COMANDOS = [
   { rotulo: 'Ir para o Acompanhamento', icone: 'i-fila', atalho: 'G F', executar: () => { location.hash = '#fila'; } },
   { rotulo: 'Ver chamados com SLA em risco', icone: 'i-alerta', executar: () => { location.hash = '#fila/risco'; } },
   { rotulo: 'Ir para a tela de Atendimentos', icone: 'i-usuario', executar: () => { location.href = TELA_ATENDIMENTOS; } },
-  { rotulo: 'Alternar tema claro/escuro', icone: 'i-lua', executar: alternarTema },
 ];
 let itensPaleta = [];
 let selecionado = 0;
@@ -593,19 +610,6 @@ function executarItemPaleta(i) {
 }
 
 // =========================================================================
-// Tema
-// =========================================================================
-function alternarTema() {
-  const raiz = document.documentElement;
-  const escuroAtual = raiz.dataset.theme
-    ? raiz.dataset.theme === 'dark'
-    : matchMedia('(prefers-color-scheme: dark)').matches;
-  raiz.dataset.theme = escuroAtual ? 'light' : 'dark';
-  try { localStorage.setItem('helpdesk-tema', raiz.dataset.theme); } catch { /* sem armazenamento */ }
-  if (estado.rota === 'dashboard') renderDashboard();
-}
-
-// =========================================================================
 // Atalhos de teclado (C, G D, G F, /, ⌘K, Esc)
 // =========================================================================
 let esperaG = 0;
@@ -616,25 +620,48 @@ function atalhos(ev) {
     if (!dialogoAberto) abrirPaleta();
     return;
   }
-  if (ev.key === 'Escape' && estado.gavetaId && !dialogoAberto) { fecharGaveta(); return; }
+  if (ev.key === 'Escape' && estado.gavetaId && !dialogoAberto) {
+    fecharGaveta();
+    return;
+  }
   const digitando = ev.target.closest('input, textarea, select, [contenteditable]');
   if (dialogoAberto || digitando || ev.metaKey || ev.ctrlKey || ev.altKey) return;
 
   const k = ev.key.toLowerCase();
   if (Date.now() - esperaG < 900) {
     esperaG = 0;
-    if (k === 'd') { location.hash = '#dashboard'; return; }
-    if (k === 'f') { location.hash = '#fila'; return; }
+    if (k === 'd') {
+      location.hash = '#dashboard';
+      return;
+    }
+    if (k === 'f') {
+      location.hash = '#fila';
+      return;
+    }
   }
-  if (k === 'g') { esperaG = Date.now(); return; }
-  if (k === 'c') { location.href = TELA_ABERTURA; return; }
-  if (k === '/') { ev.preventDefault(); abrirPaleta(); }
+  if (k === 'g') {
+    esperaG = Date.now();
+    return;
+  }
+  if (k === 'c') {
+    location.href = TELA_ABERTURA;
+    return;
+  }
+  if (k === '/') {
+    ev.preventDefault();
+    abrirPaleta();
+  }
 }
 
 // =========================================================================
 // Inicialização
 // =========================================================================
 function iniciar() {
+  // Conta conectada no menu compartilhado (js/layout.js), como nas demais telas.
+  window.HelpDeskAuth?.requireUser()
+    .then((usuario) => window.HelpDeskAuth.navigation(usuario))
+    .catch(() => { /* sem sessão: o cliente de autenticação redireciona para o login */ });
+
   if (CONFIG.USE_MOCK) {
     $('#modo-demo').hidden = false;
     $('#btn-restaurar').addEventListener('click', async () => {
@@ -647,10 +674,13 @@ function iniciar() {
   document.addEventListener('click', (ev) => {
     const acao = ev.target.closest('[data-acao]')?.dataset.acao;
     if (acao === 'paleta') abrirPaleta();
-    if (acao === 'tema') alternarTema();
 
     const btn = ev.target.closest('button[data-prox]');
-    if (btn) { ev.stopPropagation(); mudarStatus(btn.dataset.id, btn.dataset.prox); return; }
+    if (btn) {
+      ev.stopPropagation();
+      mudarStatus(btn.dataset.id, btn.dataset.prox);
+      return;
+    }
     if (ev.target.closest('.linha-acoes a')) return; // link para Atendimentos
 
     const linha = ev.target.closest('.linha[data-id], .mini-tabela tr[data-id]');
@@ -673,26 +703,49 @@ function iniciar() {
     }
   });
 
-  $('#busca-fila').addEventListener('input', (ev) => { estado.busca = ev.target.value; renderFila(); });
+  $('#busca-fila').addEventListener('input', (ev) => {
+    estado.busca = ev.target.value;
+    renderFila();
+  });
   $('#form-resolver').addEventListener('submit', confirmarResolver);
 
-  $('#paleta-input').addEventListener('input', () => { selecionado = 0; renderPaleta(); });
-  $('#paleta-input').addEventListener('keydown', (ev) => {
-    if (ev.key === 'ArrowDown') { ev.preventDefault(); selecionado = Math.min(selecionado + 1, itensPaleta.length - 1); renderPaleta(); }
-    if (ev.key === 'ArrowUp') { ev.preventDefault(); selecionado = Math.max(selecionado - 1, 0); renderPaleta(); }
-    if (ev.key === 'Enter') { ev.preventDefault(); executarItemPaleta(selecionado); }
+  $('#paleta-input').addEventListener('input', () => {
+    selecionado = 0;
+    renderPaleta();
   });
-  $('#dlg-paleta').addEventListener('click', (ev) => { if (ev.target.id === 'dlg-paleta') ev.target.close(); });
+  $('#paleta-input').addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      selecionado = Math.min(selecionado + 1, itensPaleta.length - 1);
+      renderPaleta();
+    }
+    if (ev.key === 'ArrowUp') {
+      ev.preventDefault();
+      selecionado = Math.max(selecionado - 1, 0);
+      renderPaleta();
+    }
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      executarItemPaleta(selecionado);
+    }
+  });
+  $('#dlg-paleta').addEventListener('click', (ev) => {
+    if (ev.target.id === 'dlg-paleta') ev.target.close();
+  });
 
   // Outra aba (abertura/atendimentos) mudou os dados de demonstração → atualiza
-  window.addEventListener('storage', (ev) => { if (ev.key === 'helpdesk_chamados') recarregar(); });
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === 'helpdesk_chamados') recarregar();
+  });
 
   document.addEventListener('keydown', atalhos);
   window.addEventListener('hashchange', aplicarRota);
   let t;
   window.addEventListener('resize', () => {
     clearTimeout(t);
-    t = setTimeout(() => { if (estado.rota === 'dashboard') renderDashboard(); }, 150);
+    t = setTimeout(() => {
+      if (estado.rota === 'dashboard') renderDashboard();
+    }, 150);
   });
 
   aplicarRota();
