@@ -34,9 +34,18 @@ test('alteracao alheia faz rollback sem gravar status ou historico',async()=>{
 });
 test('alteracao autorizada grava status e historico antes do commit',async()=>{
  calls=[];
- await service.alterarStatus(9,{id:2,perfil:'TECNICO'},'RESOLVIDO');
+ const solucao = 'Cabo de rede substituído e conexão restabelecida.';
+
+ await service.alterarStatus(
+  9,
+  {id:2,perfil:'TECNICO'},
+  'RESOLVIDO',
+  solucao
+ );
+
  const history=calls.findIndex(c=>c.sql.includes('INSERT INTO ticket_history'));
  assert.ok(history>0);
  assert.equal(calls[history].params[1],2);
+ assert.equal(calls[history].params[4],solucao);
  assert.ok(calls.findIndex(c=>c.sql==='COMMIT')>history);
 });
